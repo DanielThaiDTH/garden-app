@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Constants } from 'expo-constants';
 import { Alert, Platform, PermissionsAndroid, Linking } from 'react-native';
 import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable } from 'react-native';
@@ -6,6 +6,7 @@ import { ActivityIndicator } from 'react-native';
 import * as Location from 'expo-location';
 import { NavigationContainer } from '@react-navigation/native';
 import WeatherDisplay from './WeatherDisplay';
+import AppContext from './context/AppContext';
 
 const SIM_MODE = true;
 let MainPage;
@@ -18,6 +19,7 @@ export default MainPage = ({navigation}) => {
     const [data, setData] = useState(null);
     const [text, setText] = useState('');
     const [err, setErr] = useState('');
+    const { curUsername, setCurUsername, token, setToken } = useContext(AppContext);
 
     useEffect(() => {
         (async () => {
@@ -48,6 +50,7 @@ export default MainPage = ({navigation}) => {
 
     let search = (text) => {
         setLoading(true);
+        //console.log(`username: ${curUsername} token: ${token}`);
         fetch('https://pure-plateau-52218.herokuapp.com/search?q=' + text)
             .then((response) => response.json())
             .then((json) => {
@@ -136,15 +139,14 @@ styles = StyleSheet.create({
         maxHeight: 0
     },
     listHeader: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 16,
-        textDecorationLine: 'underline'
     },
     sub: {
         color: 'gray'
     },
     searchLabel: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 20,
     },
     searchbar: {

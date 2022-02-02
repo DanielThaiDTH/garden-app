@@ -17,21 +17,21 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     header: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 16,
         textDecorationLine: 'underline'
     },
     date: {
         color: 'grey',
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 16
     },
     temp: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 16
     },
     weatherType: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 16,
         color: 'darkgoldenrod'
     }

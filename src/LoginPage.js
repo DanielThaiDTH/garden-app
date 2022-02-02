@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Button, 
         secure, Image, ImageBackground, ImageBackgroundComponent, Alert } from 'react-native';
 import { Modal } from 'react-native';
 import { Dimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import AppContext from './context/AppContext';
 
 styles = StyleSheet.create({
     container: {
@@ -164,7 +165,8 @@ styles = StyleSheet.create({
     button: {
         borderWidth: 3,
         borderRadius: 15,
-        margin: 5
+        margin: 5,
+        justifyContent: 'center'
     },
     buttonLoginColor: {
         borderColor: '#666620'
@@ -189,6 +191,7 @@ export default LoginPage = ({ navigation }) => {
     const [newUsername, setNewUsername] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [createModalVisible, setCreateModalVisible] = useState(false);
+    const { curUsername, setCurUsername, token, setToken } = useContext(AppContext);
 
     const signIn = async () => {
         let res = await fetch('https://pure-plateau-52218.herokuapp.com/login',
@@ -243,25 +246,36 @@ export default LoginPage = ({ navigation }) => {
             <View style={styles.fixToText}>
                 <TouchableOpacity style={styles.button}
                 onPress={() => navigation.push('home')}>
-                    <Text style={styles.test}>Try it out!</Text>
+                    <Text style={styles.test}>{(curUsername && token) ? "Proceed to main page" : "Try it out!"}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={[styles.button, styles.buttonLoginColor]}
                 onPress={() => {
-                    signIn().then(res => {
-                        //console.log(res);
-                        if (res.ok) {
-                            res.json().then(r => console.log(r.statusMsg));
-                            Alert.alert("Success", "Logging in as ", [{ text: "OK" }]);
-                            navigation.push('home');
-                        } else {
-                            res.json().then(resObj => {
-                                Alert.alert("Unable to Login", resObj.error, [{ text: "OK" }]);
-                            });
-                        }
-                    });
+                    if (curUsername && token) {
+                        setCurUsername("");
+                        setToken("");
+                    } else {
+                        signIn().then(res => {
+                            //console.log(res);
+                            if (res.ok) {
+                                res.json().then(r => {
+                                    console.log(r.statusMsg);
+                                    setCurUsername(r.username);
+                                    setToken(r.id_token);
+                                    Alert.alert("Success", "Logging in as " + r.username, [{ text: "OK" }]);
+                                    navigation.push('home');
+                                });
+                            } else {
+                                res.json().then(resObj => {
+                                    Alert.alert("Unable to Login", resObj.error, [{ text: "OK" }]);
+                                });
+                            }
+                        });
+                    }
                 }}>
-                    <Text style={styles.Login}>Login</Text>
+                    <Text style={styles.Login}>
+                        {(curUsername && token)?"Logout" : "Login"}
+                    </Text>
                 </TouchableOpacity>
             </View>
 
