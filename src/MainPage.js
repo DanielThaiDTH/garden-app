@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { Constants } from 'expo-constants';
 import { Alert, Platform, PermissionsAndroid, Linking } from 'react-native';
 import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable } from 'react-native';
 import { ActivityIndicator } from 'react-native';
-import * as Location from 'expo-location';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Location from 'expo-location';
 import WeatherDisplay from './WeatherDisplay';
 import AppContext from './context/AppContext';
 
@@ -19,17 +20,18 @@ export default MainPage = ({navigation}) => {
     const [data, setData] = useState(null);
     const [text, setText] = useState('');
     const [err, setErr] = useState('');
-    const { curUsername, setCurUsername, token, setToken } = useContext(AppContext);
+    const mountRef = useRef(true);
+    const context = useContext(AppContext);
 
     useEffect(() => {
         (async () => {
-            if (location)
+            if (!mountRef.current || context.location)
                 return;
             
             //Appetize does not have location service
             if (SIM_MODE && Platform.OS === 'ios') {
                 let mock_location = { coords: { latitude: 43.829859, longitude: -79.5750729 } }
-                setLocation(mock_location);
+                context.setLocation(mock_location);
                 Alert.alert("Using mock location of Toronto, Appetize does not provide location service on the simulator. \
                 \   \   \   Set SIM_MODE in MainPage.js to false to use geolocation with an iOS device.");
             } else {
@@ -40,12 +42,14 @@ export default MainPage = ({navigation}) => {
                 }
 
                 let newLocation = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
-                setLocation(newLocation);
+                context.setLocation(newLocation);
                 if (!newLocation)
                     Alert.alert("Could not obtain location")
             }
-            //console.log(newLocation);
         })();
+        return () => {
+            mountRef.current = false;
+        }
     }, []);
 
     let search = (text) => {
@@ -72,7 +76,7 @@ export default MainPage = ({navigation}) => {
 
     if (connectError) {
         return (
-            <View style={{ display: 'flex', flex: 1, margin: 24}}>
+            <View style={styles.container}>
                 <Text style={styles.searchLabel}>Plant Search</Text>
                 <TextInput
                     style={styles.searchbar}
@@ -82,13 +86,20 @@ export default MainPage = ({navigation}) => {
                     defaultValue={text}
                 />
                 <Text>{err}</Text>
-                <WeatherDisplay location={location}/>
+                <WeatherDisplay location={context.location}/>
             </View>
         );
     }
 
     return (
-        <View style={{ display: 'flex', flex: 1, margin: 24, justifyContent: 'flex-start' }}>
+        <View style={styles.container}>
+            <Text style={styles.greeting}>Hello {(context.curUsername && context.curUsername.length > 0)? context.curUsername:"guest"}!</Text>
+            {context.curUsername.length > 0 && context.account.gardenCount() === 0 && 
+                <Pressable style={styles.addGarden}
+                           onPress={()=>navigation.push('garden-list', {initialAdd: true})} >
+                    <Text style={styles.addGardenText}>You have no gardens yet, add one here.</Text>
+                </Pressable> 
+            }
             <Text style={styles.searchLabel}>Plant Search</Text>
             <TextInput
                 style={styles.searchbar}
@@ -113,7 +124,7 @@ export default MainPage = ({navigation}) => {
                         } />
                 </View>
                 )}
-            <WeatherDisplay location={location} />
+            <WeatherDisplay location={context.location} />
         </View>
     );
 
@@ -131,12 +142,45 @@ styles = StyleSheet.create({
         borderColor: 'green',
         maxHeight: '100%'
     },
+    greeting: {
+        textAlign: 'center',
+        fontFamily: 'Ubuntu',
+        fontSize: 25,
+        marginBottom: 10
+    },
+    addGarden: {
+        margin: 10,
+        marginBottom: 20,
+        borderColor: 'blue',
+        borderRadius: 10,
+        borderWidth: 3,
+        paddingVertical: 10,
+        paddingHorizontal: 5,
+        backgroundColor: 'lightblue'
+    },
+    addGardenText: {
+        textAlign: 'center',
+        fontFamily: "UbuntuBold",
+        fontSize: 16
+    },
     searchContainerEmpty: {
         flex: -1,
         flexDirection: 'column',
         margin: 24,
         backgroundColor: 'beige',
         maxHeight: 0
+    },
+    searchLabel: {
+        fontFamily: 'UbuntuBold',
+        fontSize: 20,
+    },
+    searchbar: {
+        margin: 5,
+        marginBottom: 25,
+        height: 40,
+        fontSize: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: 'darkgreen'
     },
     listHeader: {
         fontFamily: 'UbuntuBold',
@@ -145,22 +189,18 @@ styles = StyleSheet.create({
     sub: {
         color: 'gray'
     },
-    searchLabel: {
-        fontFamily: 'UbuntuBold',
-        fontSize: 20,
-    },
-    searchbar: {
-        margin: 10,
-        height: 40,
-        fontSize: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: 'darkgreen'
-    },
     listItem: {
         borderBottomColor: 'grey',
         borderBottomWidth: 1,
         marginLeft: 10,
         marginRight: 10,
         marginTop: 5
+    },
+    container: { 
+        display: 'flex', 
+        flex: 1, 
+        margin: 24, 
+        paddingTop: (Platform.OS === 'ios') ? 50 : 0,
+        justifyContent: 'flex-start'
     }
 });

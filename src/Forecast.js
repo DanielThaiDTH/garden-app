@@ -3,6 +3,7 @@ import { Constants } from 'expo-constants';
 import { Alert, Platform, PermissionsAndroid, Linking } from 'react-native';
 import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native';
 
 const iconURL = "https://openweathermap.org/img/wn/";
 const iconURLEnd = ".png"
@@ -14,24 +15,24 @@ const styles = StyleSheet.create({
         resizeMode: 'contain'
     },
     errorText: {
-        color: 'red',
-        fontWeight: 'bold'
+        color: 'darkred',
+        fontFamily: 'UbuntuBold'
     },
     date: {
         color: 'grey',
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 18
     },
     high: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 15
     },
     low: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 15
     },
     weatherType: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 16,
         color: 'darkgoldenrod'
     }
@@ -59,7 +60,7 @@ const WeatherItem = ({ data }) => {
             </View>
         );
     } else {
-        return (<Text>Loading forecast...</Text>);
+        return (<ActivityIndicator size="large" color = "#00ff00"/>);
     }
 }
 
@@ -92,7 +93,11 @@ export default Forecast = ({navigation, route}) => {
                     keyExtractor={(item, index) => { return index; }}
                 />
             }
-            {!hasForecast && <Text style={styles.errorText}>No forecast is available.</Text>}
+            {!hasForecast && 
+            <View>
+                    <ActivityIndicator size="large" color="#00ff00"/>
+                    <Text style={styles.errorText}>No forecast is available.</Text>
+            </View>}
         </View>
     );
 }

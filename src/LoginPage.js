@@ -5,6 +5,7 @@ import { Modal } from 'react-native';
 import { Dimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import AppContext from './context/AppContext';
+import Account from './context/Account';
 
 styles = StyleSheet.create({
     container: {
@@ -191,7 +192,7 @@ export default LoginPage = ({ navigation }) => {
     const [newUsername, setNewUsername] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [createModalVisible, setCreateModalVisible] = useState(false);
-    const { curUsername, setCurUsername, token, setToken } = useContext(AppContext);
+    const context = useContext(AppContext);
 
     const signIn = async () => {
         let res = await fetch('https://pure-plateau-52218.herokuapp.com/login',
@@ -202,6 +203,14 @@ export default LoginPage = ({ navigation }) => {
             });
         return res;
     };
+
+    const accessAccount = async (token) => {
+        let res = await fetch('https://pure-plateau-52218.herokuapp.com/account',
+            {
+                headers: {'Authorization' : 'Bearer ' + token}
+            });
+        return res;
+    }
 
     const createAccount = async () => {
         let res = await fetch('https://pure-plateau-52218.herokuapp.com/signup', 
@@ -246,24 +255,39 @@ export default LoginPage = ({ navigation }) => {
             <View style={styles.fixToText}>
                 <TouchableOpacity style={styles.button}
                 onPress={() => navigation.push('home')}>
-                    <Text style={styles.test}>{(curUsername && token) ? "Proceed to main page" : "Try it out!"}</Text>
+                    <Text style={styles.test}>{(context.curUsername && context.token) ? "Proceed to main page" : "Try it out!"}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={[styles.button, styles.buttonLoginColor]}
                 onPress={() => {
-                    if (curUsername && token) {
-                        setCurUsername("");
-                        setToken("");
+                    if (context.curUsername && context.token) {
+                        context.setCurUsername("");
+                        context.setToken("");
                     } else {
                         signIn().then(res => {
                             //console.log(res);
                             if (res.ok) {
                                 res.json().then(r => {
                                     console.log(r.statusMsg);
-                                    setCurUsername(r.username);
-                                    setToken(r.id_token);
+                                    context.setCurUsername(r.username);
+                                    context.account.name = r.username;
+                                    context.setToken(r.id_token);
                                     Alert.alert("Success", "Logging in as " + r.username, [{ text: "OK" }]);
-                                    navigation.push('home');
+
+                                    accessAccount(r.id_token)
+                                    .then(acc => {
+                                        if (acc.ok) {
+                                            acc.json().then(account => {
+                                                context.setAccount(new Account(account));
+                                                navigation.push('home');
+                                            }).catch(err => Alert.alert("Account access error", err.message, [{ text: "OK" }]));
+                                        } else {
+                                            Alert.alert("Account access expired, try logging in again");
+                                            context.setCurUsername("");
+                                            context.setToken("");
+                                        }
+                                    }).catch(err => Alert.alert("Account access error", err, [{ text: "OK" }]));
+                                    
                                 });
                             } else {
                                 res.json().then(resObj => {
@@ -274,7 +298,7 @@ export default LoginPage = ({ navigation }) => {
                     }
                 }}>
                     <Text style={styles.Login}>
-                        {(curUsername && token)?"Logout" : "Login"}
+                        {(context.curUsername && context.token)?"Logout" : "Login"}
                     </Text>
                 </TouchableOpacity>
             </View>

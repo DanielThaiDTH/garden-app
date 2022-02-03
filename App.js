@@ -11,6 +11,8 @@ import MainPage from './src/MainPage';
 import PlantInfo from './src/PlantInfo';
 import Forecast from './src/Forecast';
 import LoginPage from './src/LoginPage';
+import GardenMgmt from './src/GardenMgmt';
+import Account from './src/context/Account';
 
 const NavStack = createNativeStackNavigator();
 
@@ -23,7 +25,10 @@ const App = () => {
   const [location, setLocation] = useState(null);
   const [curUsername, setCurUsername] = useState("");
   const [token, setToken] = useState("");
-  const contextValue = useMemo(() => ({ curUsername, setCurUsername, token, setToken }), [curUsername, token]);
+  const [account, setAccount] = useState(new Account(""));
+  const contextValue = useMemo(() => ({ 
+    curUsername, setCurUsername, token, setToken, location, setLocation, account, setAccount
+   }), [curUsername, token, location, account]);
 
   if (!fontLoaded) return null;
 
@@ -59,6 +64,7 @@ const App = () => {
                           options={{ title: "Green Garden Oracle" }}/>
           <NavStack.Screen name="plant-info" component={ PlantInfo } options={{ title: "Plant Information"}}/>
           <NavStack.Screen name="forecast" component={Forecast} options={{title: "7-day Forecast"}}/>
+          <NavStack.Screen name="garden-list" component={GardenMgmt} options={{title: "Garden Managment"}}/>
         </NavStack.Navigator>
       </NavigationContainer>
     </AppContext.Provider>
