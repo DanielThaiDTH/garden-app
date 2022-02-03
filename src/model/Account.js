@@ -21,7 +21,7 @@ export default class Account {
             this.name = acc.username;
             this.id = acc.userID;
             this.#gardens = acc.gardens.map(g => new Garden(g));
-            this.activeGarden = this.#gardens?.at(0)?.name;
+            this.activeGarden = (this.#gardens && this.#gardens.length > 0 ) ? this.#gardens.at(0).name : null;
         }
     }
 

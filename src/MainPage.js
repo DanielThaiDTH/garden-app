@@ -108,7 +108,7 @@ export default MainPage = ({navigation}) => {
     return (
         <View style={styles.container}>
             <Text style={styles.greeting}>Hello {(context.curUsername && context.curUsername.length > 0)? context.curUsername:"guest"}!</Text>
-            {context.curUsername.length > 0 && context.account.gardenCount() === 0 && 
+            {context.curUsername.length > 0 && context.account.gardenCount === 0 && 
                 <Pressable style={styles.addGarden}
                            onPress={()=>navigation.push('garden-list', {initialAdd: true})} >
                     <Text style={styles.addGardenText}>You have no gardens yet, add one here.</Text>

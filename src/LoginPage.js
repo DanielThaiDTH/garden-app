@@ -91,6 +91,7 @@ export default LoginPage = ({ navigation }) => {
 
                                     accessAccount(r.id_token)
                                     .then(acc => {
+                                        console.log("account response " + acc);
                                         if (acc.ok) {
                                             acc.json().then(account => {
                                                 context.setAccount(new Account(account));
