@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useEffect, useState, useContext, useRef, useLayoutEffect } from 'react';
 import { Constants } from 'expo-constants';
-import { Alert, Platform, PermissionsAndroid, Linking } from 'react-native';
+import { Alert, Platform, PermissionsAndroid, Linking, Touchable, TouchableOpacity } from 'react-native';
 import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable } from 'react-native';
 import { ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
-import WeatherDisplay from './WeatherDisplay';
+import WeatherDisplay from './components/WeatherDisplay';
+import AppMenu from './components/AppMenu';
 import AppContext from './context/AppContext';
+
 
 const SIM_MODE = true;
 let MainPage;
@@ -23,6 +25,7 @@ export default MainPage = ({navigation}) => {
     const mountRef = useRef(true);
     const context = useContext(AppContext);
 
+    //Get weather data from location
     useEffect(() => {
         (async () => {
             if (!mountRef.current || context.location)
@@ -50,7 +53,18 @@ export default MainPage = ({navigation}) => {
         return () => {
             mountRef.current = false;
         }
-    }, []);
+    }, [context.location]);
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <AppMenu navigation={navigation}
+                    name={context.curUsername}
+                    active={!!context.account}
+                />
+            )
+        });
+    }, [navigation, context.curUsername]);
 
     let search = (text) => {
         setLoading(true);

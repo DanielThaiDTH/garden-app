@@ -16,10 +16,12 @@ export default class Account {
             this.name = null;
             this.id = null;
             this.#gardens = null;
+            this.activeGarden = null;
         } else {
             this.name = acc.username;
             this.id = acc.userID;
             this.#gardens = acc.gardens.map(g => new Garden(g));
+            this.activeGarden = this.#gardens?.at(0)?.name;
         }
     }
 
@@ -51,5 +53,9 @@ export default class Account {
 
     getGardenList() {
         return this.#gardens.map(g => g.name);
+    }
+
+    getGarden(name) {
+        return this.#gardens.find(g => g.name === name);
     }
 }

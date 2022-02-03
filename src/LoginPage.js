@@ -1,198 +1,26 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, createContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Button, 
         secure, Image, ImageBackground, ImageBackgroundComponent, Alert } from 'react-native';
 import { Modal } from 'react-native';
 import { Dimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import AppContext from './context/AppContext';
-import Account from './context/Account';
+import Account from './model/Account';
+import CreateModal from './components/CreateModal';
 
-styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'lightgreen',
-    },
-    createContainer: {
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        margin: 30
-    },
-    createView: {
-        margin: 20,
-        alignItems: 'center',
-        backgroundColor: 'white',
-        borderRadius: 15,
-        width: Dimensions.get('window').width*0.9,
-        shadowColor: '#002211',
-        shadowOffset: {
-            width: 1,
-            height: 2
-        },
-        shadowOpacity: 0.2,
-        padding: 10
-    },
-    usernameInput: {
-        justifyContent: 'center',
-        fontSize: 25,
-        height: 45,
-        width: Dimensions.get('window').width*0.9,
-        borderTopLeftRadius: 5,
-        borderTopRightRadius: 5,
-        borderBottomLeftRadius: 5,
-        borderBottomRightRadius: 5,
-        backgroundColor: 'white',
-        marginBottom: 15,
-        borderWidth: 0.5,
-        padding: 5,
-    },
-    passwordInput: {
-        justifyContent: 'center',
-        fontSize: 25,
-        height: 45,
-        width: Dimensions.get('window').width*0.9,
-        borderTopLeftRadius: 5,
-        borderTopRightRadius: 5,
-        borderBottomLeftRadius: 5,
-        borderBottomRightRadius: 5,
-        borderWidth: 0.5,
-        padding: 5,
-        backgroundColor: 'white'
-    },
-    usernameCreateInput: {
-        justifyContent: 'center',
-        fontSize: 20,
-        height: 40,
-        width: Dimensions.get('window').width * 0.8,
-        borderTopLeftRadius: 5,
-        borderTopRightRadius: 5,
-        borderBottomLeftRadius: 5,
-        borderBottomRightRadius: 5,
-        backgroundColor: 'white',
-        marginBottom: 10,
-        borderWidth: 0.5,
-        padding: 5,
-    },
-    passwordCreateInput: {
-        justifyContent: 'center',
-        fontSize: 20,
-        height: 40,
-        width: Dimensions.get('window').width * 0.8,
-        borderTopLeftRadius: 5,
-        borderTopRightRadius: 5,
-        borderBottomLeftRadius: 5,
-        borderBottomRightRadius: 5,
-        borderWidth: 0.5,
-        padding: 5,
-        backgroundColor: 'white'
-    },
-    welcome: {
-        fontSize: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontFamily: 'Ubuntu',
-        textAlign: 'center',
-        marginBottom: 50,
-    },
-    welcome2: {
-        fontSize: 50,
-        fontStyle: "italic",
-        justifyContent: 'center',
-        alignItems: 'center',
-        //fontFamily: 'Ubuntu'
-    },
-    createText: {
-        fontSize: 20,
-        fontFamily: 'Ubuntu',
-        textAlign: 'center',
-        marginHorizontal: 12,
-        marginVertical: 5
-    },
-    test:
-    {
-        justifyContent: 'center',
-        alignItems: 'center',
-        textAlign: 'center',
-        fontSize: 25,
-        marginVertical: 5,
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        width: Dimensions.get('window').width*0.4,
-        fontFamily: 'Ubuntu'
-    },
-    Login: {
-        justifyContent: 'center',
-        textAlign: 'center',
-        alignItems: 'center',
-        fontSize: 25,
-        marginVertical: 5,
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        marginRight: 0,
-        width: Dimensions.get('window').width * 0.4,
-        fontFamily: 'Ubuntu'
-    },
-    createButtonText: {
-        textAlign: 'center',
-        fontSize: 20,
-        marginVertical: 5,
-        marginHorizontal: 10,
-        width: Dimensions.get('window').width * 0.35,
-        fontFamily: 'Ubuntu'
-    },
-    create: {
-        textAlign: 'center',
-        fontSize: 20,
-        fontFamily: 'Ubuntu',
-        marginVertical: 10,
-        width: Dimensions.get('window').width * 0.8 + 10,
-    }, 
+let styles;
 
-    fixToText: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        margin: 25
-    },
-    
-    tinyLogo: {
-        height: 100,
-        width: 100,
-        margin: 20,
-    },
-    button: {
-        borderWidth: 3,
-        borderRadius: 15,
-        margin: 5,
-        justifyContent: 'center'
-    },
-    buttonLoginColor: {
-        borderColor: '#666620'
-    },
-    buttonCreateColor: {
-        borderColor: '#0033AA'
-    },
-    createButtons: {
-        borderWidth: 2,
-        borderRadius: 12,
-        margin: 5
-    },
-    createButtonOk: {
-        borderColor: '#90e080'
-    }
-
+const CreateContext = createContext({
+    createModalVisible: false,
+    setCreateModalVisible: () => {}
 });
 
 export default LoginPage = ({ navigation }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [newUsername, setNewUsername] = useState("");
-    const [newPassword, setNewPassword] = useState("");
     const [createModalVisible, setCreateModalVisible] = useState(false);
     const context = useContext(AppContext);
+    const createContextValue = {createModalVisible, setCreateModalVisible};
 
     const signIn = async () => {
         let res = await fetch('https://pure-plateau-52218.herokuapp.com/login',
@@ -212,36 +40,22 @@ export default LoginPage = ({ navigation }) => {
         return res;
     }
 
-    const createAccount = async () => {
-        let res = await fetch('https://pure-plateau-52218.herokuapp.com/signup', 
-                                {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': "application/json" },
-                                    body: JSON.stringify({ username: newUsername, password: newPassword })
-                                });
-        return res;
-    }
-
     return (
 
         <View style={styles.container}>
 
-            <Text style={styles.welcome2}>Welcome To</Text>
+            <Image style={styles.image} source={require('../assets/Image3.jpg')} />
             <Text style={styles.welcome}>Green Garden Oracle</Text>
-
+            <Text style={styles.textUnderMain}>Your One Stop Gardening App</Text>
+            <Text style={styles.welcomeBack}>Welcome Back!</Text>
+            <Text style={styles.welcome2}>Sign in to continue</Text>
             {/* <!--Username--> */}
-
             <TextInput
                 style={styles.usernameInput}
                 placeholder="Username"
                 onChangeText={name => setUsername(name)}
                 value={username} />
-
-
-
-
             {/* <!--Password--> */}
-
             <TextInput
                 style={styles.passwordInput}
                 placeholder="Password"
@@ -263,6 +77,7 @@ export default LoginPage = ({ navigation }) => {
                     if (context.curUsername && context.token) {
                         context.setCurUsername("");
                         context.setToken("");
+                        context.setAccount(null);
                     } else {
                         signIn().then(res => {
                             //console.log(res);
@@ -270,7 +85,7 @@ export default LoginPage = ({ navigation }) => {
                                 res.json().then(r => {
                                     console.log(r.statusMsg);
                                     context.setCurUsername(r.username);
-                                    context.account.name = r.username;
+                                    //context.account.name = r.username;
                                     context.setToken(r.id_token);
                                     Alert.alert("Success", "Logging in as " + r.username, [{ text: "OK" }]);
 
@@ -286,7 +101,7 @@ export default LoginPage = ({ navigation }) => {
                                             context.setCurUsername("");
                                             context.setToken("");
                                         }
-                                    }).catch(err => Alert.alert("Account access error", err, [{ text: "OK" }]));
+                                    }).catch(err => Alert.alert("Account access error", err.error, [{ text: "OK" }]));
                                     
                                 });
                             } else {
@@ -303,73 +118,186 @@ export default LoginPage = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={[styles.button, styles.buttonCreateColor]}
-                              onPress={()=>{setCreateModalVisible(true)}}>
-                <Text style={styles.create}>Create an Account</Text>
+            <TouchableOpacity onPress={() => { setCreateModalVisible(true) }}>
+                <Text style={styles.create2}>Create an Account</Text>
+                <Text style={styles.create}>Don't have an account?</Text>
             </TouchableOpacity>
 
-            <Modal animationType='slide'
-                   transparent={true}
-                   visible={createModalVisible}
-                   onRequestClose={() => {
-                       setNewPassword("");
-                       setNewUsername("");
-                       setCreateModalVisible(false);
-                   }}>
-                <View style={styles.createContainer}>
-                   <View style={styles.createView}>
-                        <Text style={styles.createText}>
-                            Enter your account username and password
-                        </Text>
-                        <TextInput
-                            style={styles.usernameCreateInput}
-                            placeholder="Username"
-                            onChangeText={name => setNewUsername(name)}
-                            value={newUsername} />
-                        <TextInput
-                            style={styles.passwordCreateInput}
-                            placeholder="Password"
-                            onChangeText={pass => setNewPassword(pass)}
-                            secureTextEntry={secure}
-                            secureTextEntry={true}
-                            value={newPassword} />
-                        <TouchableOpacity style={[styles.createButtons, styles.createButtonOk]}
-                                          onPress={() => {
-                                              createAccount().then(res => {
-                                                  if (res.ok) {
-                                                      res.json().then(r => {
-                                                          Alert.alert("Account created", r.statusMsg ? r.statusMsg : "Error", [{text: "OK"}]);
-                                                          setNewPassword("");
-                                                          setNewUsername("");
-                                                          setCreateModalVisible(false);
-                                                        });
-                                                  } else {
-                                                      res.json().then(resObj => {
-                                                          Alert.alert("Unable to create account", resObj.error, [{ text: "OK" }]);
-                                                      });
-                                                  }
-                                              })
-                                          }}>
-                            <Text style={styles.createButtonText}>Create</Text>
-                        </TouchableOpacity >
-                        <TouchableOpacity onPress={() => { 
-                                                        setCreateModalVisible(false);
-                                                        setNewPassword("");
-                                                        setNewUsername("");
-                                          }}
-                                          style={styles.createButtons}>
-                            <Text style={styles.createButtonText}>Cancel</Text>
-                        </TouchableOpacity>
-                   </View>
-                </View>
-            </Modal>
-
+            <CreateContext.Provider value={createContextValue}>
+                <CreateModal cont={CreateContext}/>
+            </CreateContext.Provider>
 
         </View>
 
 
-
-
-
     );
 }
+
+styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F8F8FF',
+        paddingTop: 0
+    },
+    usernameInput: {
+        justifyContent: 'center',
+        fontSize: 25,
+        height: 45,
+        width: Dimensions.get('window').width * 0.9,
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
+        backgroundColor: 'white',
+        marginBottom: 15,
+        borderWidth: 0.5,
+        padding: 5,
+    },
+    image: {
+        position: "absolute",
+        width: Dimensions.get("window").width*1.2,
+        height: 200,
+        top: -10,
+        //bottom: 470,
+        opacity: 1,
+        borderBottomRightRadius: 450,
+        borderBottomLeftRadius: 450,
+        borderTopRightRadius: 80,
+        borderTopLeftRadius: 80,
+        backgroundColor: 'transparent',
+        borderBottomWidth: 70
+
+    },
+    passwordInput: {
+        justifyContent: 'center',
+        fontSize: 25,
+        height: 45,
+        width: Dimensions.get('window').width * 0.9,
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
+        borderWidth: 0.5,
+        padding: 5,
+        backgroundColor: 'white'
+    },
+    half: {
+        color: '#FFFFFF'
+    },
+    welcome: {
+        fontSize: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: 'Ubuntu',
+        textAlign: 'center',
+        marginBottom: 50,
+        bottom: 80,
+        color: '#FFFFFF',
+        fontSize: 30,
+
+    },
+    textUnderMain:
+    {
+        color: '#FFFFFF',
+        bottom: 100,
+        fontStyle: 'italic'
+    },
+    welcome2: {
+        fontSize: 18,
+        fontStyle: "italic",
+        justifyContent: 'center',
+        alignItems: 'center',
+        bottom: 5,
+        color: '#818589'
+        //fontFamily: 'Ubuntu'
+    },
+    welcomeBack: {
+        color: '#4F7942',
+        bottom: 10,
+        fontSize: 25
+    },
+    test:
+    {
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        fontSize: 25,
+        marginVertical: 5,
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        width: Dimensions.get('window').width * 0.4,
+        fontFamily: 'Ubuntu',
+    },
+    Login: {
+        justifyContent: 'center',
+        textAlign: 'center',
+        alignItems: 'center',
+        fontSize: 25,
+        marginVertical: 5,
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        marginRight: 0,
+        width: Dimensions.get('window').width * 0.4,
+        fontFamily: 'Ubuntu'
+    },
+    fixToText: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        margin: 25
+    },
+    createButtonText: {
+        textAlign: 'center',
+        fontSize: 20,
+        marginVertical: 5,
+        marginHorizontal: 10,
+        width: Dimensions.get('window').width * 0.35,
+        fontFamily: 'Ubuntu',
+    },
+    create: {
+        textAlign: 'center',
+        fontFamily: 'Ubuntu',
+        marginVertical: 10,
+        width: Dimensions.get('window').width * 0.8 + 10,
+        bottom: 29,
+        right: 71,
+        bottom: 29
+    },
+    create2: {
+        textAlign: 'center',
+        fontFamily: 'Ubuntu',
+        marginVertical: 10,
+        width: Dimensions.get('window').width * 0.8 + 10,
+        bottom: 29,
+        fontWeight: "bold",
+        left: 65,
+        bottom: -9
+    },
+    buttonCreateColor: {
+        borderColor: '#0033AA'
+    },
+    tinyLogo: {
+        height: 100,
+        width: 100,
+        margin: 20,
+    },
+    button: {
+        borderWidth: 3,
+        borderRadius: 15,
+        margin: 5,
+        justifyContent: 'center'
+    },
+    buttonLoginColor: {
+        borderColor: '#666620'
+    }
+
+});
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////

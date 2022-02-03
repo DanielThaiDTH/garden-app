@@ -1,13 +1,17 @@
 import { createContext, useState, useContext, useMemo } from 'react';
-import Account from "./Account";
+import Account from "../model/Account";
 
 export default AppContext = createContext({
     curUsername: "",
     setCurUsername: () =>{},
     token: "",
     setToken: () => {},
-    account: new Account(),
+    account: null,
     setAccount: () => {},
     location: null,
-    setLocation: () => {}
+    setLocation: () => {},
+    plantInfo: null,
+    setPlantInfo: () => {},
+    zone: -1,
+    setZone: () => {}
 });

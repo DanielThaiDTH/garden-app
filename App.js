@@ -1,18 +1,19 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Constants } from 'expo-constants';
-//import { Alert, Platform, PermissionsAndroid, Linking } from 'react-native';
+import { Alert } from 'react-native';
 //import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, ToastAndroid } from 'react-native';
 import * as Location from 'expo-location';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
+import { MenuProvider } from 'react-native-popup-menu';
 import AppContext from './src/context/AppContext';
 import MainPage from './src/MainPage';
 import PlantInfo from './src/PlantInfo';
 import Forecast from './src/Forecast';
 import LoginPage from './src/LoginPage';
 import GardenMgmt from './src/GardenMgmt';
-import Account from './src/context/Account';
+import Account from './src/model/Account';
 
 const NavStack = createNativeStackNavigator();
 
@@ -25,35 +26,49 @@ const App = () => {
   const [location, setLocation] = useState(null);
   const [curUsername, setCurUsername] = useState("");
   const [token, setToken] = useState("");
-  const [account, setAccount] = useState(new Account(""));
+  const [account, setAccount] = useState(null);
+  const [plantInfo, setPlantInfo] = useState(null);
+  const [zone, setZone] = useState(-1);
   const contextValue = useMemo(() => ({ 
-    curUsername, setCurUsername, token, setToken, location, setLocation, account, setAccount
-   }), [curUsername, token, location, account]);
+    curUsername, setCurUsername, 
+    token, setToken, 
+    location, setLocation, 
+    account, setAccount,
+    plantInfo, setPlantInfo,
+    zone, setZone
+   }), [curUsername, token, location, account, plantInfo, zone]);
 
-  if (!fontLoaded) return null;
 
+  useEffect(() => {
+    if (plantInfo) 
+      return () => {};
 
-  // useEffect(() => {
-  //   (async () => {
-  //     if (location) return;
-  //     let { status } = await Location.requestForegroundPermissionsAsync();
-  //     if (status !== 'granted') {
-  //       Alert.alert('Permission to access location was denied');
-  //       return;
-  //     }
+    fetch("https://pure-plateau-52218.herokuapp.com")
+    .then(res => {
+      if (res.ok) {
+        res.json()
+        .then(data => setPlantInfo(data))
+        .catch(err => Alert.alert("Unable to parse data"));
+      } else {
+        Alert.alert("Unable to load plant information");
+      }
+    });
+  }, [plantInfo]);
 
-  //     let firstlocation = await Location.getCurrentPositionAsync({});
-  //     setLocation(firstlocation);
-  //     console.log(location);
-  //   })();
-  // }, []);
+ if (!fontLoaded) 
+    return null;
 
   return (
     <AppContext.Provider value={contextValue}>
+      <MenuProvider>
       <NavigationContainer>
         <NavStack.Navigator initialRouteName="login" 
           screenOptions={{
-            headerStyle: { backgroundColor: '#90e080' },
+            headerStyle: { 
+              backgroundColor: '#90e080', 
+              flexDirection: 'row', 
+              justifyContent: 'space-around'
+            },
             headerTitleStyle: { fontWeight: 'bold' },
             headerTitleAlign: 'center'
         }}>
@@ -67,6 +82,7 @@ const App = () => {
           <NavStack.Screen name="garden-list" component={GardenMgmt} options={{title: "Garden Managment"}}/>
         </NavStack.Navigator>
       </NavigationContainer>
+      </MenuProvider>
     </AppContext.Provider>
   );
 

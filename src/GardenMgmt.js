@@ -3,7 +3,7 @@ import { Alert, Modal, Platform, Dimensions } from 'react-native';
 import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import AppContext from './context/AppContext';
-import Garden from './context/Garden';
+import Garden from './model/Garden';
 
 let styles;
 
