@@ -4,6 +4,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Button,
 import { Modal } from 'react-native';
 import { Dimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { BlurView } from 'expo-blur';
 import AppContext from './context/AppContext';
 import Account from './model/Account';
 import CreateModal from './components/CreateModal';
@@ -40,89 +41,93 @@ export default LoginPage = ({ navigation }) => {
         return res;
     }
 
+    const signInPress = () => {
+        if (context.curUsername && context.token) {
+            context.setCurUsername("");
+            context.setToken("");
+            context.setAccount(null);
+            context.setLocation(null);
+            context.setZone(-1);
+        } else {
+            signIn().then(res => {
+                //console.log(res);
+                if (res.ok) {
+                    res.json().then(r => {
+                        console.log(r.statusMsg);
+                        context.setCurUsername(r.username);
+                        //context.account.name = r.username;
+                        context.setToken(r.id_token);
+                        Alert.alert("Success", "Logging in as " + r.username, [{ text: "OK" }]);
+
+                        accessAccount(r.id_token)
+                            .then(acc => {
+                                if (acc.ok) {
+                                    acc.json().then(account => {
+                                        context.setAccount(new Account(account));
+                                        navigation.push('home');
+                                    }).catch(err => Alert.alert("Account access error", err.message, [{ text: "OK" }]));
+                                } else {
+                                    Alert.alert("Account access expired, try logging in again");
+                                    context.setCurUsername("");
+                                    context.setToken("");
+                                }
+                            }).catch(err => Alert.alert("Account access error", err.error, [{ text: "OK" }]));
+
+                    });
+                } else {
+                    res.json().then(resObj => {
+                        Alert.alert("Unable to Login", resObj.error, [{ text: "OK" }]);
+                    });
+                }
+            });
+        }
+    }
+
     return (
 
         <View style={styles.container}>
+            <BlurView intensity={75*createModalVisible} tint='dark' style={styles.blurContainer}>
+                <Image style={styles.image} source={require('../assets/Image3.jpg')} />
+                <Text style={styles.welcome}>Green Garden Oracle</Text>
+                <Text style={styles.textUnderMain}>Your One Stop Gardening App</Text>
+                <Text style={styles.welcomeBack}>Welcome Back!</Text>
+                <Text style={styles.welcome2}>Sign in to continue</Text>
+                {/* <!--Username--> */}
+                <TextInput
+                    style={styles.usernameInput}
+                    placeholder="Username"
+                    onChangeText={name => setUsername(name)}
+                    value={username} />
+                {/* <!--Password--> */}
+                <TextInput
+                    style={styles.passwordInput}
+                    placeholder="Password"
+                    onChangeText={pass => setPassword(pass)}
+                    secureTextEntry={secure}
+                    secureTextEntry={true}
+                    value={password} />
 
-            <Image style={styles.image} source={require('../assets/Image3.jpg')} />
-            <Text style={styles.welcome}>Green Garden Oracle</Text>
-            <Text style={styles.textUnderMain}>Your One Stop Gardening App</Text>
-            <Text style={styles.welcomeBack}>Welcome Back!</Text>
-            <Text style={styles.welcome2}>Sign in to continue</Text>
-            {/* <!--Username--> */}
-            <TextInput
-                style={styles.usernameInput}
-                placeholder="Username"
-                onChangeText={name => setUsername(name)}
-                value={username} />
-            {/* <!--Password--> */}
-            <TextInput
-                style={styles.passwordInput}
-                placeholder="Password"
-                onChangeText={pass => setPassword(pass)}
-                secureTextEntry={secure}
-                secureTextEntry={true}
-                value={password} />
+                {/* <!--Loggin Button--> */}
 
-            {/* <!--Loggin Button--> */}
+                <View style={styles.fixToText}>
+                    <TouchableOpacity style={styles.button}
+                    onPress={() => navigation.push('home')}>
+                        <Text style={styles.test}>{(context.curUsername && context.token) ? "Proceed to main page" : "Try it out!"}</Text>
+                    </TouchableOpacity>
 
-            <View style={styles.fixToText}>
-                <TouchableOpacity style={styles.button}
-                onPress={() => navigation.push('home')}>
-                    <Text style={styles.test}>{(context.curUsername && context.token) ? "Proceed to main page" : "Try it out!"}</Text>
+                    <TouchableOpacity style={[styles.button, styles.buttonLoginColor]}
+                                      onPress={signInPress}>
+                        <Text style={styles.Login}>
+                            {(context.curUsername && context.token)?"Logout" : "Login"}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity onPress={() => { setCreateModalVisible(true) }}>
+                    <Text style={styles.create2}>Create an Account</Text>
+                    <Text style={styles.create}>Don't have an account?</Text>
                 </TouchableOpacity>
-
-                <TouchableOpacity style={[styles.button, styles.buttonLoginColor]}
-                onPress={() => {
-                    if (context.curUsername && context.token) {
-                        context.setCurUsername("");
-                        context.setToken("");
-                        context.setAccount(null);
-                    } else {
-                        signIn().then(res => {
-                            //console.log(res);
-                            if (res.ok) {
-                                res.json().then(r => {
-                                    console.log(r.statusMsg);
-                                    context.setCurUsername(r.username);
-                                    //context.account.name = r.username;
-                                    context.setToken(r.id_token);
-                                    Alert.alert("Success", "Logging in as " + r.username, [{ text: "OK" }]);
-
-                                    accessAccount(r.id_token)
-                                    .then(acc => {
-                                        console.log("account response " + acc);
-                                        if (acc.ok) {
-                                            acc.json().then(account => {
-                                                context.setAccount(new Account(account));
-                                                navigation.push('home');
-                                            }).catch(err => Alert.alert("Account access error", err.message, [{ text: "OK" }]));
-                                        } else {
-                                            Alert.alert("Account access expired, try logging in again");
-                                            context.setCurUsername("");
-                                            context.setToken("");
-                                        }
-                                    }).catch(err => Alert.alert("Account access error", err.error, [{ text: "OK" }]));
-                                    
-                                });
-                            } else {
-                                res.json().then(resObj => {
-                                    Alert.alert("Unable to Login", resObj.error, [{ text: "OK" }]);
-                                });
-                            }
-                        });
-                    }
-                }}>
-                    <Text style={styles.Login}>
-                        {(context.curUsername && context.token)?"Logout" : "Login"}
-                    </Text>
-                </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity onPress={() => { setCreateModalVisible(true) }}>
-                <Text style={styles.create2}>Create an Account</Text>
-                <Text style={styles.create}>Don't have an account?</Text>
-            </TouchableOpacity>
+            </BlurView>
 
             <CreateContext.Provider value={createContextValue}>
                 <CreateModal cont={CreateContext}/>
@@ -143,6 +148,12 @@ styles = StyleSheet.create({
         backgroundColor: '#F8F8FF',
         paddingTop: 0
     },
+    blurContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
+    }, 
     usernameInput: {
         justifyContent: 'center',
         fontSize: 25,
@@ -208,17 +219,17 @@ styles = StyleSheet.create({
     },
     welcome2: {
         fontSize: 18,
-        fontStyle: "italic",
         justifyContent: 'center',
         alignItems: 'center',
         bottom: 5,
-        color: '#818589'
-        //fontFamily: 'Ubuntu'
+        color: '#818589',
+        fontFamily: 'UbuntuItalic'
     },
     welcomeBack: {
         color: '#4F7942',
         bottom: 10,
-        fontSize: 25
+        fontSize: 25,
+        fontFamily: 'Ubuntu'
     },
     test:
     {

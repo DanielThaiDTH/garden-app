@@ -14,6 +14,7 @@ import Forecast from './src/Forecast';
 import LoginPage from './src/LoginPage';
 import GardenMgmt from './src/GardenMgmt';
 import Account from './src/model/Account';
+import LoginContext from './src/context/LoginContext';
 
 const NavStack = createNativeStackNavigator();
 
@@ -29,6 +30,8 @@ const App = () => {
   const [account, setAccount] = useState(null);
   const [plantInfo, setPlantInfo] = useState(null);
   const [zone, setZone] = useState(-1);
+  const [visible, setVisible] = useState(false);
+  const loginContextValue = { visible, setVisible };
   const contextValue = useMemo(() => ({ 
     curUsername, setCurUsername, 
     token, setToken, 
@@ -60,29 +63,31 @@ const App = () => {
 
   return (
     <AppContext.Provider value={contextValue}>
-      <MenuProvider>
-      <NavigationContainer>
-        <NavStack.Navigator initialRouteName="login" 
-          screenOptions={{
-            headerStyle: { 
-              backgroundColor: '#90e080', 
-              flexDirection: 'row', 
-              justifyContent: 'space-around'
-            },
-            headerTitleStyle: { fontWeight: 'bold' },
-            headerTitleAlign: 'center'
-        }}>
-          <NavStack.Screen name="login" component={ LoginPage } options={{title: "Login"}}/>
-          <NavStack.Screen name="home" 
-                          component={ MainPage } 
-                          initialParams={{ location: location }}
-                          options={{ title: "Green Garden Oracle" }}/>
-          <NavStack.Screen name="plant-info" component={ PlantInfo } options={{ title: "Plant Information"}}/>
-          <NavStack.Screen name="forecast" component={Forecast} options={{title: "7-day Forecast"}}/>
-          <NavStack.Screen name="garden-list" component={GardenMgmt} options={{title: "Garden Managment"}}/>
-        </NavStack.Navigator>
-      </NavigationContainer>
-      </MenuProvider>
+      <LoginContext.Provider value={loginContextValue}>
+        <MenuProvider>
+          <NavigationContainer>
+            <NavStack.Navigator initialRouteName="login"
+              screenOptions={{
+                headerStyle: {
+                  backgroundColor: '#90e080',
+                  flexDirection: 'row',
+                  justifyContent: 'space-around'
+                },
+                headerTitleStyle: { fontWeight: 'bold' },
+                headerTitleAlign: 'center'
+              }}>
+              <NavStack.Screen name="login" component={LoginPage} options={{ title: "Login" }} />
+              <NavStack.Screen name="home"
+                component={MainPage}
+                initialParams={{ location: location }}
+                options={{ title: "Green Garden Oracle" }} />
+              <NavStack.Screen name="plant-info" component={PlantInfo} options={{ title: "Plant Information" }} />
+              <NavStack.Screen name="forecast" component={Forecast} options={{ title: "7-day Forecast" }} />
+              <NavStack.Screen name="garden-list" component={GardenMgmt} options={{ title: "Garden Managment" }} />
+            </NavStack.Navigator>
+          </NavigationContainer>
+        </MenuProvider>
+      </LoginContext.Provider>
     </AppContext.Provider>
   );
 

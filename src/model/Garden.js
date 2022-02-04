@@ -10,13 +10,16 @@ export default class Garden {
     #plants = [];
 
     constructor(gardenObj) {
-        this.id = gardenObj.id;
+        this.id = gardenObj.id ?? -1;
         this.lat = gardenObj.lat;
         this.lon = gardenObj.lon;
-        this.zone = gardenObj.zone;
+        this.zone = gardenObj.zone ?? -1;
         this.name = gardenObj.name;
         this.createdAt = gardenObj.createdAt;
-        this.#plants = gardenObj.plants.map(p => new Plant(p));
+        if (Array.isArray(gardenObj.plants))
+            this.#plants = gardenObj.plants.map(p => new Plant(p));
+        else
+            this.#plants = [];
     }
 
     addPlant(plant) {

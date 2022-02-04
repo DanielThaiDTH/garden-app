@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, useRef, useLayoutEffect } from 'react';
 import { Constants } from 'expo-constants';
-import { Alert, Platform, PermissionsAndroid, Linking, Touchable, TouchableOpacity } from 'react-native';
-import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable } from 'react-native';
+import { Alert, Platform, PermissionsAndroid, Linking, Touchable, TouchableOpacity, Dimensions } from 'react-native';
+import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable, Switch } from 'react-native';
 import { ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,30 +9,56 @@ import * as Location from 'expo-location';
 import WeatherDisplay from './components/WeatherDisplay';
 import AppMenu from './components/AppMenu';
 import AppContext from './context/AppContext';
+import LoginModal from './components/LoginModal';
 
 
 const SIM_MODE = true;
 let MainPage;
 let styles;
 
+/**
+ * Filters plants by hardiness zone. Does nothing if any paramter is invalid.
+ * @param {Array<Object>} results 
+ * @param {Array<Object>} plantList 
+ * @param {number} zone 
+ * @returns A filtered array from the results parameter.
+ */
+let filterSearchByZone = (results, plantList, zone) => {
+    if (!Number.isInteger(zone) || zone < 0 || !results || !plantList)
+        return results;
+    
+    let filtered = results.filter(plant => {
+        let match = plantList.find(item => {
+            return item.plantName === plant.name && (item.zones.length == 0 || item.zones.includes(zone));
+        });
+        return !!match;
+    });
+
+
+    return filtered;
+};
+
+
 export default MainPage = ({navigation}) => {
     const [isLoading, setLoading] = useState(false);
     const [connectError, setConnectError] = useState(false);
-    const [location, setLocation] = useState(null);
+    const [filterOn, setFilterOn] = useState(true);
     const [data, setData] = useState(null);
     const [text, setText] = useState('');
     const [err, setErr] = useState('');
     const mountRef = useRef(true);
     const context = useContext(AppContext);
 
-    //Get weather data from location
+    //Get location information
     useEffect(() => {
         (async () => {
-            if (!mountRef.current || context.location)
+            if (context.location)
                 return;
-            
-            //Appetize does not have location service
-            if (SIM_MODE && Platform.OS === 'ios') {
+            if (context.account && context.account.gardenCount() > 0 && context.account.activeGarden) {
+                let garden = context.account.getGarden(context.account.activeGarden);
+                context.setLocation({coords: { latitude: garden.lat, longitude: garden.lon}});
+            } else if (SIM_MODE && Platform.OS === 'ios') {
+                //Appetize does not have location service
                 let mock_location = { coords: { latitude: 43.829859, longitude: -79.5750729 } }
                 context.setLocation(mock_location);
                 Alert.alert("Using mock location of Toronto, Appetize does not provide location service on the simulator. \
@@ -51,16 +77,49 @@ export default MainPage = ({navigation}) => {
             }
         })();
         return () => {
-            mountRef.current = false;
+           // mountRef.current = false;
         }
     }, [context.location]);
 
+    //Get the hardiness zone
+    useEffect(() => {
+        (async () => {
+            if (!context.location || context.zone > 0)
+                return;
+            
+            if (context.account && context.account.getActiveGarden() &&
+                                   context.account.getActiveGarden().zone &&
+                                   context.account.getActiveGarden().zone > 0) {
+                context.setZone(context.account.getActiveGarden().zone);
+                return;
+            }
+            
+            let response = await fetch(`https://pure-plateau-52218.herokuapp.com/zone?lat=${
+                                    context.location.coords.latitude}&lon=${
+                                    context.location.coords.longitude}`);
+            let resObj = await response.json();
+
+            if (!resObj) {
+                Alert.alert("Network error.");
+            } else if (resObj.zone) {
+                context.setZone(resObj.zone);
+                if (context.account && context.account.activeGarden)
+                    context.account.getActiveGarden().zone = resObj.zone;
+            } else {
+                Alert.alert(resObj.error);
+            }
+        })();
+        return () => {
+            //mountRef.current = false;
+        }
+    }, [context.location]);
+
+    //Renders options
     useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
                 <AppMenu navigation={navigation}
                     name={context.curUsername}
-                    active={!!context.account}
                 />
             )
         });
@@ -77,6 +136,8 @@ export default MainPage = ({navigation}) => {
                     setErr(json.error);
                     setConnectError(true);
                 } else {
+                    if (filterOn)
+                        json = filterSearchByZone(json, context.plantInfo, context.zone);
                     setData(json);
                     setConnectError(false);
                 }
@@ -87,6 +148,7 @@ export default MainPage = ({navigation}) => {
                 setConnectError(true);
             }).finally(() => setLoading(false));
     };
+
 
     if (connectError) {
         return (
@@ -101,6 +163,15 @@ export default MainPage = ({navigation}) => {
                 />
                 <Text>{err}</Text>
                 <WeatherDisplay location={context.location}/>
+                {context.zone > 0 &&
+                    <Text style={styles.zoneMsg}>
+                        Your hardiness zone is &nbsp;
+                        <Text style={styles.zone}>
+                            {context.zone}
+                        </Text>
+                    </Text>
+                }
+                <LoginModal />
             </View>
         );
     }
@@ -108,7 +179,7 @@ export default MainPage = ({navigation}) => {
     return (
         <View style={styles.container}>
             <Text style={styles.greeting}>Hello {(context.curUsername && context.curUsername.length > 0)? context.curUsername:"guest"}!</Text>
-            {context.curUsername.length > 0 && context.account.gardenCount === 0 && 
+            {context.curUsername.length > 0 && context.account && context.account.gardenCount() === 0 && 
                 <Pressable style={styles.addGarden}
                            onPress={()=>navigation.push('garden-list', {initialAdd: true})} >
                     <Text style={styles.addGardenText}>You have no gardens yet, add one here.</Text>
@@ -122,7 +193,12 @@ export default MainPage = ({navigation}) => {
                 onSubmitEditing={() => search(text)}
                 defaultValue={text}
             />
-            {!isLoading && data && data.length == 0 && <Text>No Results Found</Text>}
+            <View style={styles.switchContainer}>
+                <Text style={styles.switchLabel}>Filter by climate: </Text>
+                <Switch onValueChange={()=>{setFilterOn(!filterOn)}}
+                        value={filterOn}/>
+            </View>
+            {!isLoading && data && data.length == 0 && <Text style={styles.searchNone}>No Results Found</Text>}
             {isLoading ? <ActivityIndicator size="large" color="#00ff00" /> :
                 (data && <View style={data.length > 0 ? styles.searchContainer : styles.searchContainerEmpty}>
                     <Text style={styles.listHeader}>Search Results</Text>
@@ -139,6 +215,15 @@ export default MainPage = ({navigation}) => {
                 </View>
                 )}
             <WeatherDisplay location={context.location} />
+            {context.zone > 0 && 
+            <Text style={styles.zoneMsg}>
+                Your hardiness zone is &nbsp;
+                <Text style={styles.zone}>
+                    {context.zone}
+                </Text>
+            </Text>
+            }
+            <LoginModal/>
         </View>
     );
 
@@ -196,6 +281,24 @@ styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: 'darkgreen'
     },
+    searchNone: {
+        fontSize: 16,
+        fontFamily: 'Ubuntu',
+        textAlign: 'center',
+        color: 'darkred'
+    },
+    switchContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        width: Dimensions.get("window").width*0.6,
+        alignItems: 'center',
+        alignSelf: 'center',
+        paddingLeft: Dimensions.get("window").width*0.09
+    },
+    switchLabel: {
+        fontSize: 16,
+        fontFamily: 'UbuntuBold'
+    },
     listHeader: {
         fontFamily: 'UbuntuBold',
         fontSize: 16,
@@ -216,5 +319,16 @@ styles = StyleSheet.create({
         margin: 24, 
         paddingTop: (Platform.OS === 'ios') ? 50 : 0,
         justifyContent: 'flex-start'
+    },
+    zoneMsg: {
+        fontFamily: 'Ubuntu',
+        fontSize: 16,
+        textAlign: 'center',
+        margin: 25
+    },
+    zone: {
+        fontFamily: 'UbuntuBold',
+        fontSize: 16,
+        color: 'darkblue'
     }
 });

@@ -21,11 +21,11 @@ export default class Account {
             this.name = acc.username;
             this.id = acc.userID;
             this.#gardens = acc.gardens.map(g => new Garden(g));
-            this.activeGarden = (this.#gardens && this.#gardens.length > 0 ) ? this.#gardens.at(0).name : null;
+            this.activeGarden = (this.#gardens && this.#gardens.length > 0 ) ? this.#gardens[0].name : null;
         }
     }
 
-    get gardenCount() {
+    gardenCount() {
         return this.#gardens.length;
     }
 
@@ -57,5 +57,9 @@ export default class Account {
 
     getGarden(name) {
         return this.#gardens.find(g => g.name === name);
+    }
+
+    getActiveGarden() {
+        return this.getGarden(this.activeGarden);
     }
 }

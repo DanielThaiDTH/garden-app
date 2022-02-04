@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button } from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, Dimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import HardinessDisplay from './components/HardinessDisplay';
+import AppContext from './context/AppContext';
 
 const styles = StyleSheet.create({
     container: {
@@ -13,7 +15,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
     dataHeader: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         marginTop: 12,
         marginTop: 16,
         paddingVertical: 8,
@@ -21,8 +23,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff8dc",
         color: "#20232a",
         textAlign: "center",
-        fontSize: 15,
-        fontWeight: "bold",
+        fontSize: 18,
         borderRadius: 10,
         width: '100%',
     },
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
         fontSize: 35,
     },
     innerTextTitle: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         fontSize: 30,
         textAlign: 'left',
         color: 'green',
@@ -45,16 +46,17 @@ const styles = StyleSheet.create({
         color: 'green',
         paddingLeft: 30,
         paddingRight: 30,
-        fontWeight: '100'
+        fontFamily: 'Ubuntu'
     },
     imageView: {
         display: 'flex',
         flexDirection: 'column',
-        alignContent: 'center'
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     imageStyle: {
-        width: 400,
-        height: 225,
+        width: Dimensions.get("window").width*0.8,
+        height: Dimensions.get("window").height * 0.3,
         resizeMode: 'contain'
     },
     imageCaption: {
@@ -69,6 +71,7 @@ export default PlantInfo = ({route, navigation}) => {
     const [connectError, setConnectError] = useState(false);
     const [errMsg, setErrMsg] = useState("");
     const [data, setData] = useState([]);
+    const context = useContext(AppContext);
     const { id } = route.params; 
 
 
@@ -119,6 +122,17 @@ export default PlantInfo = ({route, navigation}) => {
 
                     <Text style={styles.dataHeader}>Plant Family</Text>
                     <Text style={styles.innerText}>{data.plantGenus}</Text>
+
+                    <Text style={styles.dataHeader}>Viable Hardiness Zones</Text>
+                    <HardinessDisplay zones={data.zones}/>
+                    {data.zones && context.zone && (context.zone < Math.min.apply(null, data.zones) ||
+                        context.zone > Math.max.apply(null, data.zones)) &&
+                        <Text style={styles.innerText}>
+                            Your climate is too {context.zone < Math.min.apply(null, data.zones) ? "cold" : "hot"} for this plant. 
+                            Your hardiness zone is {context.zone}, the {context.zone < Math.min.apply(null, data.zones) ? "minimum " : "maximum "}
+                            is { context.zone < Math.min.apply(null, data.zones) ? Math.min.apply(null, data.zones) : Math.max.apply(null, data.zones) }.
+                        </Text>
+                    }
 
                     <Text style={styles.dataHeader}>Sun Exposure</Text>
                     <Text style={styles.innerText}>{data.sunExposure}</Text>

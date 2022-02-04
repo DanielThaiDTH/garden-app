@@ -4,6 +4,7 @@ import { Alert, Platform, PermissionsAndroid, Linking } from 'react-native';
 import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { ActivityIndicator } from 'react-native';
+import { Calendar } from 'react-native-calendars';
 
 const iconURL = "https://openweathermap.org/img/wn/";
 const iconURLEnd = ".png"
@@ -71,8 +72,28 @@ export default Forecast = ({navigation, route}) => {
     useEffect(() => {
         if (!route.params.forecast)
             return;
-        
-        setData(route.params.forecast);
+
+            
+        let temp = JSON.parse(JSON.stringify(route.params.forecast)); 
+        temp = temp.map(d => {
+            let dateObj = new Date(d.dt * 1000);
+            d.y = dateObj.getFullYear();
+            d.m = dateObj.getMonth() + 1;
+            d.d = dateObj.getDate();
+            d.iso = `${d.y}-${(d.m < 10 ? '0' : '') + d.m}-${(d.d < 10 ? '0': '') + d.d}`;
+            console.log(d.iso);
+            
+            return d;
+        });
+
+        temp.marked = {}
+
+        temp.forEach(d => {
+            if (d.temp.min < 0) {
+                temp.marked[d.iso] = { marked: true };
+            }
+        });
+        setData(temp);
     }, [route.params.forecast]);
 
     useEffect(() => {
@@ -84,6 +105,11 @@ export default Forecast = ({navigation, route}) => {
     return (
         <View style={{flex: 1, margin: 15}}>
             {hasForecast && data &&
+            <>
+                <Calendar current={data[0].iso}
+                          minDate={data[0].iso}
+                          maxDate={data[data.length - 1].iso}
+                          markedDates={ data.marked }/>
                 <FlatList data={data}
                     renderItem={({item}) => 
                         <View>
@@ -92,6 +118,7 @@ export default Forecast = ({navigation, route}) => {
                     }
                     keyExtractor={(item, index) => { return index; }}
                 />
+            </>
             }
             {!hasForecast && 
             <View>

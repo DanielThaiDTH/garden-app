@@ -64,6 +64,7 @@ const generateDateObj = function(dt) {
     monthMap.set(10, 'November');
     monthMap.set(11, 'December');
 
+    //date['dt'] = dateTime;
     date['day'] = dateTime.getDate();
     date['month'] = monthMap.get(dateTime.getMonth());
     date['weekday'] = dayMap.get(dateTime.getDay());
@@ -84,8 +85,6 @@ export default WeatherDisplay = ({location}) => {
     useEffect(() => {
         if (!location)
             return;
-        else
-            console.log(location);
         
         setLat(location.coords.latitude);
         setLong(location.coords.longitude);

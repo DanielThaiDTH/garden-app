@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React,{ useState, useContext } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import {
@@ -8,19 +8,30 @@ import {
     MenuOption,
     MenuTrigger,
 } from 'react-native-popup-menu';
+import AppContext from '../context/AppContext';
+import LoginContext from '../context/LoginContext';
 
 let styles;
 
 /** Expects to be wrapped in a Menu Provider */
-export default AppMenu = ({navigation, name, active}) => { 
+export default AppMenu = ({navigation, name}) => { 
     const [opened, setOpened] = useState(false);
-    
+    const context = useContext(AppContext);
+    const loginContext = useContext(LoginContext);
+
+    let logout = () => {
+        context.setAccount(null);
+        context.setLocation(null);
+        context.setToken("");
+        context.setCurUsername("");
+        context.setZone(-1);
+    };
 
     return (
             <Menu opened={opened} 
                   onBackdropPress={()=>{ 
                                   setOpened(false);}}
-                onSelect={value => setOpened(false)}
+                  onSelect={value => setOpened(false)}
                 >
                 <MenuTrigger text='Settings' onPress={()=>setOpened(true)}/>
                 <MenuOptions>
@@ -29,15 +40,23 @@ export default AppMenu = ({navigation, name, active}) => {
                     </Text>
                     <MenuOption value={1} 
                                 text='Manage Gardens' 
-                                disabled={!active}
+                                disabled={!context.account}
                                 customStyles={{optionText: styles.option}}
-                                onSelect={() => navigation.push('garden-list', {initialAdd: false})}>
+                                onSelect={() => {
+                                        setOpened(false);
+                                        navigation.push('garden-list', {initialAdd: false});
+                                    }}>
                     </MenuOption>
                     <MenuOption value={2} 
-                                text={active?'Logout':'Login'}
+                                text={context.account?'Logout':'Login'}
                                 customStyles={{ optionText: styles.option }}
                                 onSelect={() => {
-
+                                    if (context.account) {
+                                        logout();
+                                    } else {
+                                        loginContext.setVisible(true);
+                                    }
+                                    setOpened(false);
                                 }}/>
                 </MenuOptions>
             </Menu>

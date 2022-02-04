@@ -10,7 +10,7 @@ import {
     Alert
 } from 'react-native';
 
-import {
+import React, {
     useState,
     useContext
 } from 'react';
