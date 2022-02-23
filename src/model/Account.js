@@ -1,7 +1,9 @@
 import Garden from "./Garden";
+import { API_URL } from "../service/Remote";
 
 /**
- * Represents the active user account.
+ * Represents the active user account. Contains a list of gardens, a username and an id.
+ * Provides control for 
  */
 export default class Account {
     
@@ -29,22 +31,65 @@ export default class Account {
         return this.#gardens.length;
     }
 
-    addGarden(newGarden) {
+    async addGarden(newGarden, token) {
         if (newGarden instanceof Garden) {
             let match = this.#gardens.find((g) => g.name === newGarden.name);
+
+            console.log(newGarden);
             
             if (!match) {
-                this.#gardens.push(newGarden);
+                try {
+                    let res = await fetch(API_URL + "/garden", {
+                        method: "POST",
+                        headers: { 'Content-Type': "application/json", 'Authorization': 'Bearer ' + token },
+                        body: JSON.stringify({ 
+                            userID: this.id, 
+                            gardenName: newGarden.name, 
+                            lat: newGarden.lat,
+                            lon: newGarden.lon,
+                            zone: newGarden.zone,
+                            createdAt: newGarden.createdAt
+                        })
+                    });
+
+                    if (res.ok) {
+                        this.#gardens.push(newGarden);
+                    } else {
+                        console.log("Unable to add new Garden. Either it is the wrong user or the name is already used and app state does not reflect it.");
+                        console.log((await res.json()));
+                        return false;
+                    }
+                } catch (err) {
+                    console.log("No access to database. Due to " + err.message);
+                    return false;
+                }
             }
 
-            return !!match; //to bool
+            return !!!match; //to bool
         } else {
             throw new Error("Attempted to add non-Garden type.");
         }
     }
 
-    removeGarden(name) {
+    async removeGarden(name, token) {
+        console.log(name);
+        let garden = this.#gardens.find(g => g.name === name);
+        try {
+            let res = await fetch(API_URL + "/garden", { 
+                method: "DELETE", 
+                headers: { 'Content-Type': "application/json", 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ gardenID: garden.id, gardenName: name, userID: this.id })
+            });
+            if (!res.ok) {
+                return res.error
+            }
+        } catch (err) {
+            console.log(err.message);
+            return "Could not access system.";
+        }
+
         this.#gardens = this.#gardens.filter(g => g.name !== name);
+        return "Garden deleted";
     }
 
     gardenCount() {

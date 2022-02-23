@@ -15,7 +15,8 @@ export default GardenMgmt = ({navigation, route}) => {
     const [initial, setInitial] = useState(!!route.params.initialAdd);
     const [modal, setModal] = useState(false);
     const [name, setName] = useState("");
-
+    const [listRefresh, setListRefresh] = useState(false);
+    
     //Get location information
     useEffect(() => {
         (async () => {
@@ -23,11 +24,13 @@ export default GardenMgmt = ({navigation, route}) => {
             if (context.location)
                 return;
             
+            //Get location from active garden
             if (context.account && context.account.gardenCount() > 0 && context.account.activeGarden) {
                 let garden = context.account.getActiveGarden();
                 console.log(`New lat ${garden.lat}, new lon ${garden.lon}`);
                 context.setLocation({ coords: { latitude: garden.lat, longitude: garden.lon } });
             } else {
+                //Get location from device
                 let { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
                     Alert.alert('Permission to access location was denied');
@@ -45,9 +48,12 @@ export default GardenMgmt = ({navigation, route}) => {
         }
     }, [context.location]);
 
+
     //Get the hardiness zone
     useEffect(() => {
         (async () => {
+            let zoneAlreadySet = false;
+
             if (!context.location || context.zone > 0)
                 return;
 
@@ -55,7 +61,7 @@ export default GardenMgmt = ({navigation, route}) => {
                                    context.account.getActiveGarden().zone && 
                                    context.account.getActiveGarden().zone > 0) {
                 context.setZone(context.account.getActiveGarden().zone);
-                return;
+                zoneAlreadySet = true;
             }
 
             let response = await fetch(`https://pure-plateau-52218.herokuapp.com/zone?lat=${context.location.coords.latitude}&lon=${context.location.coords.longitude}`);
@@ -63,18 +69,18 @@ export default GardenMgmt = ({navigation, route}) => {
 
             if (!resObj) {
                 Alert.alert("Network error.");
-            } else if (resObj.zone) {
+            } else if (resObj.zone && !zoneAlreadySet) {
                 context.setZone(resObj.zone);
                 if (context.account && context.account.activeGarden)
                     context.account.getActiveGarden().zone = resObj.zone;
-            } else {
+            } else if (resObj && resObj.error) {
                 Alert.alert(resObj.error);
             }
         })();
         return () => {
             //mountRef.current = false;
         }
-    }, [context.location]);
+    }, [context.location, context.zone]);
 
 
     const addGarden = async () => {
@@ -91,15 +97,28 @@ export default GardenMgmt = ({navigation, route}) => {
         } else {
             let lat = newLocation.coords.latitude.toFixed(3);
             let lon = newLocation.coords.longitude.toFixed(3);
-            context.account.addGarden(new Garden({lat: lat, lon: lon, name: name, createdAt: new Date()}));
+            let status = await context.account.addGarden(new Garden({lat: lat, lon: lon, name: name, createdAt: new Date()}), context.token);
+            if (status) {
+                Alert.alert("Garden " + name + " added to your account.");
+                setListRefresh(!listRefresh);
+            }
             setName("");
         } 
+    }
+
+    const removeGarden = async () => {
+        if (context && context.account.activeGarden) {
+            let msg =  await context.account.removeGarden(context.account.activeGarden, context.token);
+            setListRefresh(!listRefresh);
+            Alert.alert(msg);
+        }
     }
 
 
     return (
         <View style={styles.container}>
             <FlatList data={context.account.getGardenList()}
+                      extraData={listRefresh}
                       ListHeaderComponent={
                         <Text style={styles.gardenListHeader}>
                             Your Gardens
@@ -119,8 +138,8 @@ export default GardenMgmt = ({navigation, route}) => {
                       )}>
             </FlatList>
             <View>
-                {/* <Button title='Remove Garden' color={'red'}/> */}
                 <Button title='Add Garden' onPress={()=> setModal(true)}/>
+                <Button title='Remove Garden' color={'red'} onPress={removeGarden}/>
             </View>
             <Modal animationType='slide'
                 transparent={true}
@@ -132,6 +151,7 @@ export default GardenMgmt = ({navigation, route}) => {
                         onChangeText={(val)=>setName(val)}
                         value={name}/>
                     <Button title="Use current location" />
+                    <Button title="Use device location" />
                     <TouchableOpacity style={[styles.createButtons, styles.createButtonOk]}
                         onPress={() => {
                             setModal(false);

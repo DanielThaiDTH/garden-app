@@ -1,4 +1,5 @@
 import Plant from "./Plant";
+import { API_URL } from "../service/Remote";
 
 export default class Garden {
     id = -1;
@@ -22,21 +23,58 @@ export default class Garden {
             this.#plants = [];
     }
 
-    addPlant(plant) {
+    async addPlant(plant, token, userID) {
         if (plant instanceof Plant) {
             let match = this.#plants.find((p) => p.id !== -1 && p.id === plant.id);
 
             if (!match) {
-                this.#plants.push(plant);
+                try {
+                    let res = await fetch(API_URL + "/plant/" + plant.plantID, {
+                        method: "POST",
+                        headers: { 'Content-Type': "application/json", 'Authorization': 'Bearer ' + token },
+                        body: JSON.stringify({ gardenID: this.id, userID: userID })
+                    });
+                    if (res.ok) {
+                        this.#plants.push(plant);
+                    } else {
+                        console.log("Unable to add new plant due to database error");
+                        console.log((await res.json()));
+                        return false;
+                    }
+                } catch(err) {
+                    console.log("No access to database. Due to " + err.message);
+                    return false;
+                }
             }
 
-            return !!match; //to bool
+            return !!!match; //to bool
         } else {
             throw new Error("Not a plant");
         }
     }
 
-    removePlant(id) {
-        this.#plants = this.#plants.filter(p => p.id !== id);
+    async removePlant(id, token, userID) {
+        let status = false;
+
+        if (this.#plants.find(p => p.id === id)) {
+            try {
+                let res = await fetch(API_URL + "/plant/" + id, {
+                    method: "DELETE",
+                    headers: { 'Content-Type': "application/json", 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ userID: userID, gardenID: this.id })
+                });
+                if (res.ok) {
+                    let isDeleted = (await res.json()).deleted;
+                    if (isDeleted) {
+                        this.#plants = this.#plants.filter(p => p.id !== id);
+                        status = true;
+                    }   
+                }
+            } catch(err) {
+                console.log("No access to database. Due to " + err.message);
+            }
+        }
+
+        return status;
     }
 }
