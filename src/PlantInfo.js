@@ -1,8 +1,20 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, Dimensions } from 'react-native';
+import { 
+    ActivityIndicator, 
+    Text, 
+    Image, 
+    View, 
+    ScrollView, 
+    StyleSheet, 
+    Button,
+    Dimensions,
+    Alert 
+} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import HardinessDisplay from './components/HardinessDisplay';
 import AppContext from './context/AppContext';
+import Plant from './model/Plant';
+import { API_URL } from './service/Remote';
 
 const styles = StyleSheet.create({
     container: {
@@ -62,7 +74,8 @@ const styles = StyleSheet.create({
     imageCaption: {
         fontStyle: 'italic',
         color: 'grey',
-        textAlign:'center'
+        textAlign:'center',
+        marginBottom: 10
     }
 });
 
@@ -76,7 +89,7 @@ export default PlantInfo = ({route, navigation}) => {
 
 
     useEffect(() => {
-        fetch('https://pure-plateau-52218.herokuapp.com/id/' + id)
+        fetch(`${API_URL}/id/${id}`)
             .then((response) => response.json())
             .then((json) => {
                 if (!json.error) {
@@ -93,6 +106,21 @@ export default PlantInfo = ({route, navigation}) => {
             }).finally(() => setLoading(false));
     }, []);
 
+
+    const addPlant = () => {
+        let garden = context.account.getActiveGarden();
+        let newPlant = Plant.createPlant(id);
+        garden.addPlant(newPlant, context.token, context.account.id)
+        .then((status) => {
+            if (status) {
+                Alert.alert(`${data.plantName} added to your ${context.account.activeGarden} garden.`);
+            } else {
+                Alert.alert("could not add this plant to your garden.");
+            }
+        });
+    };
+
+
     if (connectError) {
         return (
             <View style={styles.container}>
@@ -103,11 +131,16 @@ export default PlantInfo = ({route, navigation}) => {
 
     return (
         <ScrollView style={{ flex: 1, margin: 24 }}>
-            {isLoading ? <Text>Loading...</Text> :
+            {isLoading ? <ActivityIndicator size="large" color="#00ff00" /> :
                 (<View style={styles.container}>
                     <View style={styles.imageView}>
                         <Image style={styles.imageStyle} source={{ uri: data.url }} />
                         <Text style={styles.imageCaption}>{data.image_by}</Text>
+                        {id && context.account &&
+                        <Button color={"green"} title='Add' onPress={addPlant}/>}
+                        {id && context.account && context.account.activeGardenHasPlant(id) && 
+                        <Text>One of this plant is currently in your garden.</Text>
+                        }
                     </View>
 
 

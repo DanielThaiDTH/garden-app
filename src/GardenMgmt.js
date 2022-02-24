@@ -7,6 +7,7 @@ import * as Location from 'expo-location';
 import AppContext from './context/AppContext';
 import Garden from './model/Garden';
 import Account from './model/Account';
+import { API_URL } from './service/Remote';
 
 let styles;
 
@@ -64,7 +65,7 @@ export default GardenMgmt = ({navigation, route}) => {
                 zoneAlreadySet = true;
             }
 
-            let response = await fetch(`https://pure-plateau-52218.herokuapp.com/zone?lat=${context.location.coords.latitude}&lon=${context.location.coords.longitude}`);
+            let response = await fetch(`${API_URL}/zone?lat=${context.location.coords.latitude}&lon=${context.location.coords.longitude}`);
             let resObj = await response.json();
 
             if (!resObj) {
@@ -97,7 +98,9 @@ export default GardenMgmt = ({navigation, route}) => {
         } else {
             let lat = newLocation.coords.latitude.toFixed(3);
             let lon = newLocation.coords.longitude.toFixed(3);
-            let status = await context.account.addGarden(new Garden({lat: lat, lon: lon, name: name, createdAt: new Date()}), context.token);
+            let zoneResp = await fetch(`${API_URL}/zone?lat=${lat}&lon=${lon}`);
+            let tempZone = (await zoneResp.json()).zone;
+            let status = await context.account.addGarden(new Garden({lat: lat, lon: lon, name: name, createdAt: new Date(), zone: tempZone}), context.token);
             if (status) {
                 Alert.alert("Garden " + name + " added to your account.");
                 setListRefresh(!listRefresh);
@@ -131,7 +134,7 @@ export default GardenMgmt = ({navigation, route}) => {
                                                     context.setLocation(null);
                                             }}            
                                             style={styles.gardenItem}>
-                              <Text style={styles.gardenItemText}>
+                              <Text style={(context.account.activeGarden === item) ? styles.gardenItemSelected : styles.gardenItemText}>
                                   {item}
                               </Text>
                           </TouchableOpacity>
@@ -198,6 +201,10 @@ styles = StyleSheet.create({
     },
     gardenItemText: {
         fontFamily:'Ubuntu',
+        fontSize: 25
+    },
+    gardenItemSelected: {
+        fontFamily: 'UbuntuBold',
         fontSize: 25
     },
     addGarden: {

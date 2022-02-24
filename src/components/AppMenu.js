@@ -47,7 +47,16 @@ export default AppMenu = ({navigation, name}) => {
                                         navigation.push('garden-list', {initialAdd: false});
                                     }}>
                     </MenuOption>
-                    <MenuOption value={2} 
+                    <MenuOption value={2}
+                                text='Manage Plant'
+                                disabled={!context.account || !context.account.activeGarden}
+                                customStyles={{optionText: styles.option}}
+                                onSelect={() => {
+                                        setOpened(false);
+                                        navigation.push('plant-list');
+                                    }}>
+                    </MenuOption>
+                    <MenuOption value={3} 
                                 text={context.account?'Logout':'Login'}
                                 customStyles={{ optionText: styles.option }}
                                 onSelect={() => {

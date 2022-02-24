@@ -15,6 +15,7 @@ import LoginPage from './src/LoginPage';
 import GardenMgmt from './src/GardenMgmt';
 import Account from './src/model/Account';
 import LoginContext from './src/context/LoginContext';
+import GardenPlantMgmt from './src/GardenPlantMgmt';
 
 const NavStack = createNativeStackNavigator();
 
@@ -84,6 +85,7 @@ const App = () => {
               <NavStack.Screen name="plant-info" component={PlantInfo} options={{ title: "Plant Information" }} />
               <NavStack.Screen name="forecast" component={Forecast} options={{ title: "7-day Forecast" }} />
               <NavStack.Screen name="garden-list" component={GardenMgmt} options={{ title: "Garden Managment" }} />
+              <NavStack.Screen name="plant-list" component={GardenPlantMgmt} options={{title: "Plant Management" }}/>
             </NavStack.Navigator>
           </NavigationContainer>
         </MenuProvider>

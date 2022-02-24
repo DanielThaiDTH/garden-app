@@ -10,6 +10,7 @@ import WeatherDisplay from './components/WeatherDisplay';
 import AppMenu from './components/AppMenu';
 import AppContext from './context/AppContext';
 import LoginModal from './components/LoginModal';
+import { API_URL } from './service/Remote';
 
 
 const SIM_MODE = true;
@@ -94,7 +95,7 @@ export default MainPage = ({navigation}) => {
                 return;
             }
             
-            let response = await fetch(`https://pure-plateau-52218.herokuapp.com/zone?lat=${
+            let response = await fetch(`${API_URL}/zone?lat=${
                                     context.location.coords.latitude}&lon=${
                                     context.location.coords.longitude}`);
             let resObj = await response.json();
@@ -128,7 +129,7 @@ export default MainPage = ({navigation}) => {
     let search = (text) => {
         setLoading(true);
         //console.log(`username: ${curUsername} token: ${token}`);
-        fetch('https://pure-plateau-52218.herokuapp.com/search?q=' + text)
+        fetch(`${API_URL}/search?q=${text}`)
             .then((response) => response.json())
             .then((json) => {
                 console.log(json);

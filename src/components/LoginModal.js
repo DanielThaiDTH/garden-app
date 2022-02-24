@@ -15,9 +15,12 @@ import React, {
     useContext
 } from 'react';
 
+import { Shadow } from 'react-native-shadow-2';
+
 import Account from '../model/Account';
 import AppContext from '../context/AppContext';
 import LoginContext from '../context/LoginContext';
+import { API_URL } from '../service/Remote'
 
 
 
@@ -30,7 +33,7 @@ export default LoginModal = () => {
     const viewContext = useContext(LoginContext);
 
     const signIn = async () => {
-        let res = await fetch('https://pure-plateau-52218.herokuapp.com/login',
+        let res = await fetch(`${API_URL}/login`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': "application/json" },
@@ -40,7 +43,7 @@ export default LoginModal = () => {
     };
 
     const accessAccount = async (token) => {
-        let res = await fetch('https://pure-plateau-52218.herokuapp.com/account',
+        let res = await fetch(`${API_URL}/account`,
             {
                 headers: { 'Authorization': 'Bearer ' + token }
             });
@@ -100,8 +103,10 @@ export default LoginModal = () => {
                 setPassword("");
                 setUsername("");
                 viewContext.setVisible(false);
-            }}>
+            }}> 
             <View style={styles.container}>
+                <Shadow>
+
                 <View style={styles.view}>
                     <Text style={styles.text}>
                         Enter your account username and password
@@ -131,6 +136,7 @@ export default LoginModal = () => {
                         <Text style={styles.buttonText}>Cancel</Text>
                     </TouchableOpacity>
                 </View>
+                </Shadow>
             </View>
         </Modal>
     );
@@ -145,17 +151,10 @@ styles = StyleSheet.create({
         margin: 30
     },
     view: {
-        margin: 20,
         alignItems: 'center',
         backgroundColor: 'white',
         borderRadius: 15,
         width: Dimensions.get('window').width * 0.9,
-        shadowColor: '#002211',
-        shadowOffset: {
-            width: 1,
-            height: 2
-        },
-        shadowOpacity: 0.2,
         padding: 10
     },
     usernameInput: {

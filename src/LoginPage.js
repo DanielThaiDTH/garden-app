@@ -8,6 +8,7 @@ import { BlurView } from 'expo-blur';
 import AppContext from './context/AppContext';
 import Account from './model/Account';
 import CreateModal from './components/CreateModal';
+import { API_URL } from './service/Remote'
 
 let styles;
 
@@ -24,7 +25,7 @@ export default LoginPage = ({ navigation }) => {
     const createContextValue = {createModalVisible, setCreateModalVisible};
 
     const signIn = async () => {
-        let res = await fetch('https://pure-plateau-52218.herokuapp.com/login',
+        let res = await fetch(`${API_URL}/login`,
             {
                 method: 'POST',
                 headers:{ 'Content-Type': "application/json" },
@@ -34,7 +35,7 @@ export default LoginPage = ({ navigation }) => {
     };
 
     const accessAccount = async (token) => {
-        let res = await fetch('https://pure-plateau-52218.herokuapp.com/account',
+        let res = await fetch(`${API_URL}/account`,
             {
                 headers: {'Authorization' : 'Bearer ' + token}
             });

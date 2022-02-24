@@ -35,7 +35,9 @@ export default class Garden {
                         body: JSON.stringify({ gardenID: this.id, userID: userID })
                     });
                     if (res.ok) {
-                        this.#plants.push(plant);
+                        let newPlants = (await res.json()).updatedPlants;
+                        this.#plants = newPlants.map(p => new Plant(p));
+                        //this.#plants.push(plant);
                     } else {
                         console.log("Unable to add new plant due to database error");
                         console.log((await res.json()));
@@ -76,5 +78,17 @@ export default class Garden {
         }
 
         return status;
+    }
+
+    hasPlant(speciesID) {
+        let found = this.#plants.find(p => p.plantID === speciesID);
+        console.log(this.#plants);
+        console.log(speciesID);
+
+        return !!found;
+    }
+
+    getPlants() {
+        return this.#plants ?? [];
     }
 }

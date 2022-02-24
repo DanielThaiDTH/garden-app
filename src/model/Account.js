@@ -53,6 +53,8 @@ export default class Account {
                     });
 
                     if (res.ok) {
+                        let newID = (await res.json()).newID;
+                        newGarden.id = newID;
                         this.#gardens.push(newGarden);
                     } else {
                         console.log("Unable to add new Garden. Either it is the wrong user or the name is already used and app state does not reflect it.");
@@ -89,6 +91,7 @@ export default class Account {
         }
 
         this.#gardens = this.#gardens.filter(g => g.name !== name);
+        this.activeGarden = (this.#gardens.length > 0) ? this.#gardens[0].name : null;
         return "Garden deleted";
     }
 
@@ -106,5 +109,9 @@ export default class Account {
 
     getActiveGarden() {
         return this.getGarden(this.activeGarden);
+    }
+
+    activeGardenHasPlant(speciesID) {
+        return this.getActiveGarden().hasPlant(speciesID);
     }
 }
