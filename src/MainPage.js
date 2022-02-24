@@ -5,6 +5,8 @@ import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput,
 import { ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as Location from 'expo-location';
 import WeatherDisplay from './components/WeatherDisplay';
 import AppMenu from './components/AppMenu';
@@ -16,6 +18,7 @@ import { API_URL } from './service/Remote';
 const SIM_MODE = true;
 let MainPage;
 let styles;
+const Tab = createBottomTabNavigator();
 
 /**
  * Filters plants by hardiness zone. Does nothing if any paramter is invalid.
@@ -177,8 +180,11 @@ export default MainPage = ({navigation}) => {
         );
     }
 
-    return (
-        <View style={styles.container}>
+    function HomeScreen()
+    {
+        return (
+
+            <View style={styles.container}>
             <Text style={styles.greeting}>Hello {(context.curUsername && context.curUsername.length > 0)? context.curUsername:"guest"}!</Text>
             {context.curUsername.length > 0 && context.account && context.account.gardenCount() === 0 && 
                 <Pressable style={styles.addGarden}
@@ -215,7 +221,7 @@ export default MainPage = ({navigation}) => {
                         } />
                 </View>
                 )}
-            <WeatherDisplay location={context.location} />
+            {/* <WeatherDisplay location={context.location} /> */}
             {context.zone > 0 && 
             <Text style={styles.zoneMsg}>
                 Your hardiness zone is &nbsp;
@@ -226,6 +232,47 @@ export default MainPage = ({navigation}) => {
             }
             <LoginModal/>
         </View>
+
+        );
+    }
+
+    function Forecast()
+    {
+
+        return (
+
+            <WeatherDisplay location={context.location} />
+
+        );
+
+    }
+
+    return (
+
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+  
+              if (route.name === 'Home') {
+                iconName = focused
+                  ? 'ios-information-circle'
+                  : 'ios-information-circle-outline';
+              } 
+              else if (route.name === 'forecast') {
+                iconName = focused ? 'ios-list-box' : 'ios-list';
+              }
+  
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: 'tomato',
+            tabBarInactiveTintColor: 'gray',
+          })}>
+          <Tab.Screen name="Home" component={HomeScreen} options={{title: "Welcome To Oracle"}} />
+          <Tab.Screen name="forecast" component={Forecast} options={{title: "7-day Forecast"}}/>
+          {/* <Tab.Screen name="Settings" component={Settings} options={{title: "7-day Forecast"}}/> */}
+        </Tab.Navigator>
+       
     );
 
 };
