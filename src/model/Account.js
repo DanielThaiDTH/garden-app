@@ -11,7 +11,7 @@ export default class Account {
 
     /**
      * Creates the account.
-     * @param {string} username 
+     * @param {Object} acc 
      */
     constructor(acc = null) {        
         if (!acc) {

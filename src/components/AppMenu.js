@@ -48,7 +48,7 @@ export default AppMenu = ({navigation, name}) => {
                                     }}>
                     </MenuOption>
                     <MenuOption value={2}
-                                text='Manage Plant'
+                                text='Manage Plants'
                                 disabled={!context.account || !context.account.activeGarden}
                                 customStyles={{optionText: styles.option}}
                                 onSelect={() => {

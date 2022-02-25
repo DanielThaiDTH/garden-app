@@ -260,7 +260,7 @@ export default MainPage = ({navigation}) => {
                   : 'ios-information-circle-outline';
               } 
               else if (route.name === 'forecast') {
-                iconName = focused ? 'ios-list-box' : 'ios-list';
+                iconName = focused ? 'ios-cloud' : 'ios-cloud-outline';
               }
   
               return <Ionicons name={iconName} size={size} color={color} />;

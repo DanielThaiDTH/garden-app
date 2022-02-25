@@ -67,10 +67,13 @@ export default class Garden {
                 });
                 if (res.ok) {
                     let isDeleted = (await res.json()).deleted;
+                    console.log(isDeleted);
                     if (isDeleted) {
                         this.#plants = this.#plants.filter(p => p.id !== id);
                         status = true;
                     }   
+                } else {
+                    console.log((await res.json()).error);
                 }
             } catch(err) {
                 console.log("No access to database. Due to " + err.message);
@@ -90,5 +93,9 @@ export default class Garden {
 
     getPlants() {
         return this.#plants ?? [];
+    }
+
+    getPlant(id) {
+        return this.#plants.find(p => p.id === id) ?? {};
     }
 }
