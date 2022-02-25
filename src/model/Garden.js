@@ -98,4 +98,15 @@ export default class Garden {
     getPlant(id) {
         return this.#plants.find(p => p.id === id) ?? {};
     }
+
+    updatePlantingDate(plantID, date) {
+        console.log(plantID + " " + date.toLocaleDateString())
+        let plant = this.#plants.find(p => {console.log(p.id);  return p.id === plantID});
+
+        console.log(plant);
+
+        if (plant) {
+            plant.plantDate = date;
+        }
+    }
 }

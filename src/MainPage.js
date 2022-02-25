@@ -332,7 +332,6 @@ export default MainPage = ({navigation}) => {
     }
 
     return (
-
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {

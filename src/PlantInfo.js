@@ -109,7 +109,7 @@ export default PlantInfo = ({route, navigation}) => {
 
     const addPlant = () => {
         let garden = context.account.getActiveGarden();
-        let newPlant = Plant.createPlant(id);
+        let newPlant = Plant.createPlant(id, new Date());
         garden.addPlant(newPlant, context.token, context.account.id)
         .then((status) => {
             if (status) {

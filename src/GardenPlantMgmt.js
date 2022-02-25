@@ -39,6 +39,12 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
         }
     };
 
+    const updatePlantingDate = async (id) => {
+        console.log("Function called " + id);
+        context.account.getActiveGarden().updatePlantingDate(id, new Date());
+        setListRefresh(!listRefresh);
+    };
+
     const getItemName = (id) => {
         let found = context.plantInfo.find(pi => pi.UID === id);
         if (found)
@@ -59,11 +65,19 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                       renderItem={({item}) => (
                           <TouchableOpacity onPress={() => { setSelectedID(item.id) }}
                               style={styles.plantItem}>
-                              <Text style={item.id === selectedID ? styles.plantSelectedName : styles.plantName}>
-                                  {getItemName(item.plantID)}
-                              </Text>
+                              <View style={styles.horizontalView}>
+                                <Text style={item.id === selectedID ? styles.plantSelectedName : styles.plantName}>
+                                    {getItemName(item.plantID)}
+                                </Text>
+                                <TouchableOpacity onPress={() => updatePlantingDate(item.id)}
+                                                  style={styles.plantButton}>
+                                    <Text style={styles.plantButtonText}>
+                                        {item.plantDate ? "Update" : "Plant"}
+                                    </Text>
+                                </TouchableOpacity>
+                              </View>
                               <Text>
-                                  {item.plantDate ?? "Not planted yet"}
+                                  {item.plantDate ? item.plantDate.toLocaleDateString() :  "Not planted yet"}
                               </Text>
                           </TouchableOpacity>
                       )}
@@ -105,6 +119,21 @@ styles = StyleSheet.create({
     plantSelectedName: {
         fontFamily: 'UbuntuBold',
         fontSize: 20
+    },
+    horizontalView: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        margin: 0,
+        padding: 0
+    },
+    plantButton: {
+        backgroundColor: 'green',
+        padding: 10
+    },
+    plantButtonText: {
+        color: 'white',
+        fontSize: 20
     }
-
 });
