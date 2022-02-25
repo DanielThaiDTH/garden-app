@@ -8,6 +8,7 @@ import {
     MenuOption,
     MenuTrigger,
 } from 'react-native-popup-menu';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import AppContext from '../context/AppContext';
 import LoginContext from '../context/LoginContext';
 
@@ -33,7 +34,9 @@ export default AppMenu = ({navigation, name}) => {
                                   setOpened(false);}}
                   onSelect={value => setOpened(false)}
                 >
-                <MenuTrigger text='Settings' onPress={()=>setOpened(true)}/>
+                <MenuTrigger onPress={()=>setOpened(true)}>
+                    <Ionicons name={'md-menu'} size={30}/>
+                </MenuTrigger>
                 <MenuOptions>
                     <Text style={styles.menuHeader}>
                         {(name && name.length > 0) ? name : "Guest"}
@@ -74,7 +77,7 @@ export default AppMenu = ({navigation, name}) => {
 
 styles = StyleSheet.create({
     menuHeader: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
         margin: 5,
         paddingBottom: 5,
@@ -82,6 +85,6 @@ styles = StyleSheet.create({
         borderBottomColor: 'darkgrey'
     },
     option: {
-        fontSize: 16
+        fontSize: 18
     }
 });

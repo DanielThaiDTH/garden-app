@@ -15,6 +15,8 @@ import React, {
     useContext
 } from 'react';
 
+import { API_URL } from '../service/Remote';
+
 let styles;
 
 export default CreateModal = ({cont}) => {
@@ -23,7 +25,7 @@ export default CreateModal = ({cont}) => {
     const context = useContext(cont)
 
     const createAccount = async () => {
-        let res = await fetch('https://pure-plateau-52218.herokuapp.com/signup',
+        let res = await fetch(API_URL + '/signup',
             {
                 method: 'POST',
                 headers: { 'Content-Type': "application/json" },

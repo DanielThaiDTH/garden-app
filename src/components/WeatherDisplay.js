@@ -1,12 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { Alert, Platform, PermissionsAndroid, Linking } from 'react-native';
 import { Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Shadow } from 'react-native-shadow-2';
+import { API_URL } from '../service/Remote';
+import AppContext from '../context/AppContext';
 
 const iconURL = "https://openweathermap.org/img/wn/";
 const iconURLEnd = ".png"
 
 const styles = StyleSheet.create({
+    container: {
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: 'lightcyan',
+        borderWidth: 1,
+        borderRadius: 15,
+        borderStyle: 'solid',
+        borderColor: 'darkblue',
+        marginHorizontal: 10
+    },
+    containerCard: {
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: 'lightcyan',
+        borderWidth: 1,
+        borderRadius: 15,
+        borderStyle: 'solid',
+        borderColor: 'darkblue',
+        marginHorizontal: 10
+    },
     weatherIcon: {
         width: 80,
         height: 80,
@@ -37,91 +60,25 @@ const styles = StyleSheet.create({
     }
 });
 
-const generateDateObj = function(dt) {
-    let date = {};
 
-    const dateTime = new Date(dt * 1000);
-    const dayMap = new Map();
-    dayMap.set(0, 'Sunday');
-    dayMap.set(1, 'Monday');
-    dayMap.set(2, 'Tuesday');
-    dayMap.set(3, 'Wednsday');
-    dayMap.set(4, 'Thursday');
-    dayMap.set(5, 'Friday');
-    dayMap.set(6, 'Saturday');
+export default WeatherDisplay = ({nav, data}) => {
+    const context = useContext(AppContext);
+    const navigation = nav;
 
-    const monthMap = new Map();
-    monthMap.set(0, 'January');
-    monthMap.set(1, 'February');
-    monthMap.set(2, 'March');
-    monthMap.set(3, 'April');
-    monthMap.set(4, 'May');
-    monthMap.set(5, 'June');
-    monthMap.set(6, 'July');
-    monthMap.set(7, 'August');
-    monthMap.set(8, 'September');
-    monthMap.set(9, 'October');
-    monthMap.set(10, 'November');
-    monthMap.set(11, 'December');
-
-    //date['dt'] = dateTime;
-    date['day'] = dateTime.getDate();
-    date['month'] = monthMap.get(dateTime.getMonth());
-    date['weekday'] = dayMap.get(dateTime.getDay());
-    date['year'] = dateTime.getFullYear();
-    
-    return date;
-}
-
-
-export default WeatherDisplay = ({location}) => {
-    const [lat, setLat] = useState(-1000);
-    const [long, setLong] = useState(-1000);
-    const [connectError, setConnectError] = useState(false);
-    const [data, setData] = useState(null);
-    const navigation = useNavigation();
-
-    //Set the location
-    useEffect(() => {
-        if (!location)
-            return;
+    // //Set the location
+    // useEffect(() => {
+    //     console.log(context.location);
+    //     if (!context.location || (context.location.coords.latitude === lat && context.location.coords.longitude === long))
+    //         return;
         
-        setLat(location.coords.latitude);
-        setLong(location.coords.longitude);
-    }, [location]);
+    //     setLat(context.location.coords.latitude);
+    //     setLong(context.location.coords.longitude);
+    //     return () => {};
+    // }, [context.location]);
 
-    //Get the weather
-    useEffect(() => {
-        if (lat < -180 || long < -180)
-            return;
-
-        console.log(lat + " " + long);
-        fetch("https://pure-plateau-52218.herokuapp.com/weather?lat=" + lat + "&lon=" + long)
-            .then(res => res.json())
-            .then(json => {
-                if (!json || json.error) {
-                    console.error(json ? json.error : "No data.");
-                    setConnectError(true);
-                } else {
-                    if (!json.current)
-                        console.log(json);
-
-                    json.current['date'] = generateDateObj(json.current.dt);
-                    json.daily.forEach(d => {
-                        d['date'] = generateDateObj(d.dt);
-                    });
-                    setData(json);
-                    setConnectError(false);
-                }
-            }).catch(err => {
-                console.log(err);
-                setConnectError(true);
-            });
-    }, [lat, long])
-
-    if (!connectError) {
+    if (data) {
         return (
-            <View style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'lightcyan', borderWidth: 1, borderRadius: 15, borderStyle: 'solid', borderColor: 'darkblue'}}>
+            <View style={styles.container}>
                 {data && data.current && data.current.date && 
                 <Pressable onPress={()=>navigation.push('forecast', {forecast: data.daily})}>
                     <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

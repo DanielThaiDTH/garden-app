@@ -111,9 +111,23 @@ export default GardenMgmt = ({navigation, route}) => {
 
     const removeGarden = async () => {
         if (context && context.account.activeGarden) {
-            let msg =  await context.account.removeGarden(context.account.activeGarden, context.token);
-            setListRefresh(!listRefresh);
-            Alert.alert(msg);
+            Alert.alert(
+                "Delete Garden " + context.account.activeGarden, 
+                "Deleting this garden will be permament. All plants and any other information will be lost if you delete this garden. Is this OK?",
+                [ {
+                    text: "Cancel",
+                    onPress: () => {},
+                    style: "cancel"
+                }, {
+                    text: "OK",
+                    onPress: async () => {
+                        let msg = await context.account.removeGarden(context.account.activeGarden, context.token);
+                        setListRefresh(!listRefresh);
+                        Alert.alert(msg);
+                    }
+                }],
+                { cancelable: true }
+            );
         }
     }
 
@@ -140,7 +154,8 @@ export default GardenMgmt = ({navigation, route}) => {
                           </TouchableOpacity>
                       )}>
             </FlatList>
-            <View>
+            <View style={{justifyContent: 'space-evenly'}}>
+                <Button title='Manage Plants' color={'green'} onPress={() => navigation.push('plant-list')} />
                 <Button title='Add Garden' onPress={()=> setModal(true)}/>
                 <Button title='Remove Garden' color={'red'} onPress={removeGarden}/>
             </View>

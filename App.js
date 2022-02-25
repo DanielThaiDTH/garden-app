@@ -16,6 +16,7 @@ import GardenMgmt from './src/GardenMgmt';
 import Account from './src/model/Account';
 import LoginContext from './src/context/LoginContext';
 import GardenPlantMgmt from './src/GardenPlantMgmt';
+import { API_URL } from './src/service/Remote';
 
 const NavStack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ const App = () => {
   const [account, setAccount] = useState(null);
   const [plantInfo, setPlantInfo] = useState(null);
   const [zone, setZone] = useState(-1);
+  const [weatherData, setWeatherData] = useState(null);
   const [visible, setVisible] = useState(false);
   const loginContextValue = { visible, setVisible };
   const contextValue = useMemo(() => ({ 
@@ -39,15 +41,16 @@ const App = () => {
     location, setLocation, 
     account, setAccount,
     plantInfo, setPlantInfo,
-    zone, setZone
-   }), [curUsername, token, location, account, plantInfo, zone]);
+    zone, setZone,
+    weatherData, setWeatherData
+   }), [curUsername, token, location, account, plantInfo, zone, weatherData]);
 
 
   useEffect(() => {
     if (plantInfo) 
       return () => {};
 
-    fetch("https://pure-plateau-52218.herokuapp.com")
+    fetch(API_URL)
     .then(res => {
       if (res.ok) {
         res.json()
