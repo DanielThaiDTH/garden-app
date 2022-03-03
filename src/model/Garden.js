@@ -11,6 +11,7 @@ export default class Garden {
     #plants = [];
 
     constructor(gardenObj) {
+        if (!gardenObj) gardenObj = {};
         this.id = gardenObj.id ?? -1;
         this.lat = gardenObj.lat;
         this.lon = gardenObj.lon;
