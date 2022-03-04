@@ -8,9 +8,11 @@ import {
     StyleSheet, 
     Button,
     Dimensions,
-    Alert 
+    Alert,
+    TouchableOpacity
 } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import ModalDropdown from 'react-native-modal-dropdown';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import HardinessDisplay from './components/HardinessDisplay';
 import AppContext from './context/AppContext';
 import Plant from './model/Plant';
@@ -48,7 +50,6 @@ const styles = StyleSheet.create({
         fontSize: 30,
         textAlign: 'left',
         color: 'green',
-
     },
     innerText: {
         color: 'green',
@@ -76,6 +77,50 @@ const styles = StyleSheet.create({
         color: 'grey',
         textAlign:'center',
         marginBottom: 10
+    },
+    watchButton: {
+        margin: 10,
+        paddingVertical: 3,
+        paddingHorizontal: 5,
+        backgroundColor: 'blue',
+        borderRadius: 2,
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    addButton: {
+        margin: 10,
+        paddingVertical: 3,
+        paddingHorizontal: 15,
+        backgroundColor: 'green',
+        borderRadius: 2,
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    buttonText: {
+        fontSize: 25,
+        color: 'white'
+    },
+    gardenDropdown: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    dropdownLabel: {
+        fontSize: 25,
+        fontFamily: 'Ubuntu'
+    }, 
+    dropdown: {
+        borderWidth: 1,
+        borderColor: 'black',
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+        borderRadius: 10
+    },
+    dropdownSelectedText: {
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    dropdownText: {
+        fontSize: 20,
     }
 });
 
@@ -84,11 +129,22 @@ export default PlantInfo = ({route, navigation}) => {
     const [connectError, setConnectError] = useState(false);
     const [errMsg, setErrMsg] = useState("");
     const [data, setData] = useState([]);
+    const [gardenIdx, setGardenIdx] = useState(-1);
+    const [isWatched, setIsWatched] = useState(false);
+    const [isPlanted, setIsPlanted] = useState(false);
     const context = useContext(AppContext);
     const { id } = route.params; 
 
 
     useEffect(() => {
+        if (context.account) {
+            setGardenIdx(context.account.activeGardenIdx);
+            if (context.account.activeGardenIdx > 0) {
+                setIsWatched(context.account.getGardenAt(context.account.activeGardenIdx).isPlantWatched());
+                setIsPlanted(context.account.getGardenAt(context.account.activeGardenIdx).hasPlant(id));
+            }
+        }
+
         fetch(`${API_URL}/id/${id}`)
             .then((response) => response.json())
             .then((json) => {
@@ -108,7 +164,7 @@ export default PlantInfo = ({route, navigation}) => {
 
 
     const addPlant = () => {
-        let garden = context.account.getActiveGarden();
+        let garden = context.account.getGardenAt(gardenIdx);
         let newPlant = Plant.createPlant(id, new Date());
         garden.addPlant(newPlant, context.token, context.account.id)
         .then((status) => {
@@ -119,6 +175,27 @@ export default PlantInfo = ({route, navigation}) => {
             }
         });
     };
+
+
+    const watchPlant = () => {
+        let garden = context.account.getGardenAt(gardenIdx);
+        garden.watchPlant(id, context.token, context.account.id).then((status) => {
+            if (!status) 
+                Alert.alert("Could not watch plant.");
+            else
+                setIsWatched(true);
+        });
+    }
+
+    const unwatchPlant = () => {
+        let garden = context.account.getGardenAt(gardenIdx);
+        garden.unwatchPlant(id, context.token, context.account.id).then((status) =>{
+            if (!status) 
+                Alert.alert("Could not unwatch plant.");
+            else
+                setIsWatched(false);
+        });
+    }
 
 
     if (connectError) {
@@ -136,9 +213,48 @@ export default PlantInfo = ({route, navigation}) => {
                     <View style={styles.imageView}>
                         <Image style={styles.imageStyle} source={{ uri: data.url }} />
                         <Text style={styles.imageCaption}>{data.image_by}</Text>
+
+                        {id && context.account && 
+                        <View style={styles.gardenDropdown}>
+                            <Text style={styles.dropdownLabel}>Gardens: &nbsp;</Text>
+                            <ModalDropdown options={context.account.getGardenList()}
+                                           defaultIndex={gardenIdx}
+                                           defaultValue={context.account.getGardenAt(gardenIdx).name}
+                                           style={styles.dropdown}
+                                           textStyle={styles.dropdownSelectedText}
+                                           dropdownTextStyle={styles.dropdownText}
+                                           dropdownTextHighlightStyle={styles.dropdownSelectedText}
+                                           onSelect={(idx, value) => {
+                                                setGardenIdx(idx);
+                                                setIsWatched(context.account.getGardenAt(idx).isPlantWatched(id));
+                                                setIsPlanted(context.account.getGardenAt(idx).hasPlant(id));
+                                           }}/>
+                        </View>
+                        }
+
+                        {id && context.account && !isWatched &&
+                            <TouchableOpacity onPress={watchPlant}
+                                            style={styles.watchButton}>
+                                <Ionicons name={'md-eye'} size={20} color={'white'} style={{marginRight: 5}}/>
+                                <Text style={styles.buttonText}>Watch</Text>
+                            </TouchableOpacity>
+                        }
+                        {id && context.account && isWatched &&
+                            <TouchableOpacity onPress={unwatchPlant}
+                                              style={styles.watchButton}>
+                                <Ionicons name={'md-eye-off'} size={20} color={'white'} style={{ marginRight: 5 }}/>
+                                <Text style={styles.buttonText}>Unwatch</Text>
+                            </TouchableOpacity>
+                        }
+
                         {id && context.account &&
-                        <Button color={"green"} title='Add' onPress={addPlant}/>}
-                        {id && context.account && context.account.activeGardenHasPlant(id) && 
+                            <TouchableOpacity  onPress={addPlant}
+                                               style={styles.addButton}>
+                                <Ionicons name={'md-add'} size={25} color={'white'} style={{ marginRight: 20 }} />
+                                <Text style={styles.buttonText}>Add</Text>
+                            </TouchableOpacity>
+                        }
+                        {id && context.account && isPlanted && 
                         <Text>One of this plant is currently in your garden.</Text>
                         }
                     </View>

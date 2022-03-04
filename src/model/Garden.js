@@ -9,6 +9,7 @@ export default class Garden {
     createdAt;
     name;
     #plants = [];
+    watched = [];
 
     constructor(gardenObj) {
         if (!gardenObj) gardenObj = {};
@@ -18,10 +19,16 @@ export default class Garden {
         this.zone = gardenObj.zone ?? -1;
         this.name = gardenObj.name;
         this.createdAt = gardenObj.createdAt;
+
         if (Array.isArray(gardenObj.plants))
             this.#plants = gardenObj.plants.map(p => new Plant(p));
         else
             this.#plants = [];
+
+        if (Array.isArray(gardenObj.watched))
+            this.watched = gardenObj.watched;
+        else
+            this.watched = [];
     }
 
     async addPlant(plant, token, userID) {
@@ -56,6 +63,15 @@ export default class Garden {
         }
     }
 
+    /**
+     * Removes a plant from this garden. The id parameter is the garden plant unique ID.
+     * The token is the JWT used for authentication. The user Id should come from the 
+     * Account object that owns the Garden object.
+     * @param {number} id 
+     * @param {string} token 
+     * @param {number} userID 
+     * @returns Status of plant removal
+     */
     async removePlant(id, token, userID) {
         let status = false;
 
@@ -84,10 +100,81 @@ export default class Garden {
         return status;
     }
 
+    /**
+     * Adds a plant to the watch list for this garden
+     * @param {number} plantID 
+     * @param {string} token 
+     * @param {number} userID 
+     * @returns Promise\<boolean\>
+     */
+    async watchPlant(plantID, token, userID) {
+        let status = false;
+        if (!this.watched.find(wp => wp === plantID)) {
+            try {
+                let res = await fetch(API_URL + "/watch/" + plantID, {
+                    method: 'POST',
+                    headers: { 'Content-Type': "application/json", 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ userID: userID, gardenID: this.id })
+                });
+                if (res.ok) {
+                    status = true;
+                    this.watched.push(plantID);
+                } else {
+                    console.log((await res.json()).error);
+                }
+            } catch (err) {
+                console.log("No access to database. Due to " + err.message);
+            }
+        }
+
+        return status;
+    }
+
+    /**
+     * Removes plant from watch that has the given plant species id.
+     * @param {number} plantID 
+     * @param {string} token 
+     * @param {number} userID 
+     * @returns Promise\<boolean\>
+     */
+    async unwatchPlant(plantID, token, userID) {
+        let status = false;
+        if (this.watched.find(wp => wp === plantID)) {
+            try {
+                let res = await fetch(API_URL + "/watch/" + plantID, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': "application/json", 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ userID: userID, gardenID: this.id })
+                });
+                if (res.ok) {
+                    status = true;
+                    this.watched = this.watched.filter(wp => wp !== plantID);
+                } else {
+                    console.log((await res.json()).error);
+                }
+            } catch (err) {
+                console.log("No access to database. Due to " + err.message);
+            }
+        }
+
+        return status;
+    }
+
+    /**
+     * Checks if the garden has this specific species of plant.
+     * @param {number} speciesID 
+     * @returns Boolean of found status
+     */
     hasPlant(speciesID) {
         let found = this.#plants.find(p => p.plantID === speciesID);
         console.log(this.#plants);
         console.log(speciesID);
+
+        return !!found;
+    }
+
+    isPlantWatched(speciesID) {
+        let found = this.watched.find(pid => pid === speciesID);
 
         return !!found;
     }

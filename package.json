@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "eject": "expo eject"
   },
+  "author": "Daniel Thai, Jonny Amalanathan",
   "dependencies": {
     "@react-native-community/geolocation": "^2.0.2",
     "@react-navigation/bottom-tabs": "^6.2.0",

@@ -59,7 +59,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                       extraData={listRefresh}
                       ListHeaderComponent={
                           <Text style={styles.plantListHeader}>
-                              Plants in your garden
+                              Plants in your {'\n' + context.account.activeGarden + '\n'}garden
                           </Text>}
                       keyExtractor={item => item.id}
                       renderItem={({item}) => (
@@ -103,7 +103,8 @@ styles = StyleSheet.create({
         fontSize: 28,
         color: 'grey',
         borderBottomColor: 'black',
-        borderBottomWidth: 2
+        borderBottomWidth: 2,
+        textAlign: 'center'
     },
     plantItem: {
         paddingVertical: 20,

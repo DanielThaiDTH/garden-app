@@ -24,6 +24,7 @@ export default class Account {
             this.id = acc.userID;
             this.#gardens = acc.gardens.map(g => new Garden(g));
             this.activeGarden = (this.#gardens && this.#gardens.length > 0 ) ? this.#gardens[0].name : null;
+            this.activeGardenIdx = this.activeGarden ? 0 : -1;
         }
     }
 
@@ -107,6 +108,27 @@ export default class Account {
         return this.#gardens.find(g => g.name === name);
     }
 
+    getGardenAt(idx) {
+        if (Number.isInteger(idx) && idx >= 0)
+            return this.#gardens[idx];
+        else
+            return null;
+    }
+
+    setActiveGarden(gardenName) {
+        for (let i = 0; i < this.#gardens.length; i++) {
+            if (this.#gardens[i].name === gardenName) {
+                this.activeGarden = gardenName;
+                this.activeGardenIdx = i;
+                break;
+            }
+        }
+    }
+
+    /**
+     * Returns the active garden object
+     * @returns Garden
+     */
     getActiveGarden() {
         return this.getGarden(this.activeGarden);
     }
