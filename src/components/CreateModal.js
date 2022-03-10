@@ -15,7 +15,7 @@ import React, {
     useContext
 } from 'react';
 
-import { API_URL } from '../service/Remote';
+import { API_URL } from '../service/Constants';
 
 let styles;
 

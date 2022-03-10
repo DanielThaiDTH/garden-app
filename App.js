@@ -16,7 +16,7 @@ import GardenMgmt from './src/GardenMgmt';
 import Account from './src/model/Account';
 import LoginContext from './src/context/LoginContext';
 import GardenPlantMgmt from './src/GardenPlantMgmt';
-import { API_URL } from './src/service/Remote';
+import { API_URL } from './src/service/Constants';
 
 const NavStack = createNativeStackNavigator();
 

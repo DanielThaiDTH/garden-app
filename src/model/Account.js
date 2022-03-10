@@ -1,5 +1,5 @@
 import Garden from "./Garden";
-import { API_URL } from "../service/Remote";
+import { API_URL } from "../service/Constants";
 
 /**
  * Represents the active user account. Contains a list of gardens, a username and an id.

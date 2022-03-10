@@ -3,7 +3,7 @@ import { Alert, Platform, PermissionsAndroid, Linking } from 'react-native';
 import { Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Shadow } from 'react-native-shadow-2';
-import { API_URL } from '../service/Remote';
+import { API_URL } from '../service/Constants';
 import AppContext from '../context/AppContext';
 
 const iconURL = "https://openweathermap.org/img/wn/";

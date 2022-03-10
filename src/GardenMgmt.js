@@ -7,7 +7,7 @@ import * as Location from 'expo-location';
 import AppContext from './context/AppContext';
 import Garden from './model/Garden';
 import Account from './model/Account';
-import { API_URL } from './service/Remote';
+import { API_URL } from './service/Constants';
 
 let styles;
 

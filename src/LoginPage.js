@@ -8,7 +8,7 @@ import { BlurView } from 'expo-blur';
 import AppContext from './context/AppContext';
 import Account from './model/Account';
 import CreateModal from './components/CreateModal';
-import { API_URL } from './service/Remote'
+import { API_URL } from './service/Constants'
 
 let styles;
 

@@ -20,7 +20,7 @@ import { Shadow } from 'react-native-shadow-2';
 import Account from '../model/Account';
 import AppContext from '../context/AppContext';
 import LoginContext from '../context/LoginContext';
-import { API_URL } from '../service/Remote'
+import { API_URL } from '../service/Constants'
 
 
 

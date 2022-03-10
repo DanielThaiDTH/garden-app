@@ -1,7 +1,7 @@
 import Garden from "../src/model/Garden";
 import Plant from "../src/model/Plant";
 import Account from "../src/model/Account";
-import { DEV_API_URL } from "../src/service/Remote";
+import { DEV_API_URL } from "../src/service/Constants";
 const axios = require('axios').default;
 
 jest.setTimeout(7500);

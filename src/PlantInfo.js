@@ -16,7 +16,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import HardinessDisplay from './components/HardinessDisplay';
 import AppContext from './context/AppContext';
 import Plant from './model/Plant';
-import { API_URL } from './service/Remote';
+import { API_URL } from './service/Constants';
 
 const styles = StyleSheet.create({
     container: {

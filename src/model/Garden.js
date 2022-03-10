@@ -1,5 +1,5 @@
 import Plant from "./Plant";
-import { API_URL } from "../service/Remote";
+import { API_URL } from "../service/Constants";
 
 export default class Garden {
     id = -1;

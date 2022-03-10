@@ -1,10 +1,27 @@
 import React, { useEffect, useState, useContext, useRef, useLayoutEffect } from 'react';
 import { Constants } from 'expo-constants';
-import { Alert, Platform, PermissionsAndroid, Linking, Touchable, TouchableOpacity, Dimensions } from 'react-native';
-import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable, Switch } from 'react-native';
+import { 
+    Alert, 
+    Platform,
+    PermissionsAndroid,
+    Linking,
+    Touchable,
+    TouchableOpacity,
+    Dimensions } from 'react-native';
+import {
+     FlatList, 
+     Text, 
+     Image, 
+     View, 
+     ScrollView, 
+     StyleSheet, 
+     Button, 
+     TextInput, 
+     Pressable, 
+     Switch } from 'react-native';
 import { ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { generateDateObj, filterSearchByZone } from './utils';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Shadow } from 'react-native-shadow-2';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -13,72 +30,15 @@ import WeatherDisplay from './components/WeatherDisplay';
 import AppMenu from './components/AppMenu';
 import AppContext from './context/AppContext';
 import LoginModal from './components/LoginModal';
-import Settings from './SettingsPage';
-import { API_URL } from './service/Remote';
+import SettingsPage from './SettingsPage';
+import { getCoordinates } from './service/LocationService';
+import { searchPlant } from './service/SearchService';
+import { API_URL } from './service/Constants';
 
 
-const SIM_MODE = true;
 let MainPage;
 let styles;
 const Tab = createBottomTabNavigator();
-
-/**
- * Filters plants by hardiness zone. Does nothing if any paramter is invalid.
- * @param {Array<Object>} results 
- * @param {Array<Object>} plantList 
- * @param {number} zone 
- * @returns A filtered array from the results parameter.
- */
-let filterSearchByZone = (results, plantList, zone) => {
-    if (!Number.isInteger(zone) || zone < 0 || !results || !plantList)
-        return results;
-    
-    let filtered = results.filter(plant => {
-        let match = plantList.find(item => {
-            return item.plantName === plant.name && (item.zones.length == 0 || item.zones.includes(zone));
-        });
-        return !!match;
-    });
-
-
-    return filtered;
-};
-
-const generateDateObj = function (dt) {
-    let date = {};
-
-    const dateTime = new Date(dt * 1000);
-    const dayMap = new Map();
-    dayMap.set(0, 'Sunday');
-    dayMap.set(1, 'Monday');
-    dayMap.set(2, 'Tuesday');
-    dayMap.set(3, 'Wednsday');
-    dayMap.set(4, 'Thursday');
-    dayMap.set(5, 'Friday');
-    dayMap.set(6, 'Saturday');
-
-    const monthMap = new Map();
-    monthMap.set(0, 'January');
-    monthMap.set(1, 'February');
-    monthMap.set(2, 'March');
-    monthMap.set(3, 'April');
-    monthMap.set(4, 'May');
-    monthMap.set(5, 'June');
-    monthMap.set(6, 'July');
-    monthMap.set(7, 'August');
-    monthMap.set(8, 'September');
-    monthMap.set(9, 'October');
-    monthMap.set(10, 'November');
-    monthMap.set(11, 'December');
-
-    //date['dt'] = dateTime;
-    date['day'] = dateTime.getDate();
-    date['month'] = monthMap.get(dateTime.getMonth());
-    date['weekday'] = dayMap.get(dateTime.getDay());
-    date['year'] = dateTime.getFullYear();
-
-    return date;
-}
 
 
 export default MainPage = ({navigation}) => {
@@ -86,33 +46,8 @@ export default MainPage = ({navigation}) => {
 
     //Get location information
     useEffect(() => {
-        (async () => {
-            if (context.location)
-                return;
-            
-            console.log("Setting location");
-            if (context.account && context.account.gardenCount() > 0 && context.account.activeGarden) {
-                let garden = context.account.getGarden(context.account.activeGarden);
-                context.setLocation({coords: { latitude: garden.lat, longitude: garden.lon}});
-            } else if (SIM_MODE && Platform.OS === 'ios') {
-                //Appetize does not have location service
-                let mock_location = { coords: { latitude: 43.829859, longitude: -79.5750729 } }
-                context.setLocation(mock_location);
-                Alert.alert("Using mock location of Toronto, Appetize does not provide location service on the simulator. \
-                \   \   \   Set SIM_MODE in MainPage.js to false to use geolocation with an iOS device.");
-            } else {
-                let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    Alert.alert('Permission to access location was denied');
-                    return;
-                }
-
-                let newLocation = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Low});
-                context.setLocation(newLocation);
-                if (!newLocation)
-                    Alert.alert("Could not obtain location")
-            }
-        })();
+        getCoordinates(context);
+        
         return () => {
            // mountRef.current = false;
         }
@@ -213,26 +148,16 @@ export default MainPage = ({navigation}) => {
 
         let search = (text) => {
             setLoading(true);
-            //console.log(`username: ${curUsername} token: ${token}`);
-            fetch(`${API_URL}/search?q=${text}`)
-                .then((response) => response.json())
-                .then((json) => {
-                    console.log(json);
-                    if (json.error) {
-                        setErr(json.error);
-                        setConnectError(true);
-                    } else {
-                        if (filterOn)
-                            json = filterSearchByZone(json, context.plantInfo, context.zone);
-                        setData(json);
-                        setConnectError(false);
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                    setErr(error.error);
+            searchPlant(text, filterOn, context, setData)
+            .then((errMsg) => {
+                if (errMsg) {
+                    setErr(errMsg);
                     setConnectError(true);
-                }).finally(() => setLoading(false));
+                } else {
+                    setConnectError(false);
+                }
+                setLoading(false);
+            });
         };
 
         if (connectError) {

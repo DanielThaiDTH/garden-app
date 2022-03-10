@@ -2,24 +2,37 @@ import React, { useEffect, useState, useContext, useRef } from 'react';
 import { Alert, Modal, Platform, Dimensions } from 'react-native';
 import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput } from 'react-native';
 import { TouchableOpacity } from 'react-native';
+import ModalDropdown from 'react-native-modal-dropdown';
 
 import AppContext from './context/AppContext';
 import Garden from './model/Garden';
 import Account from './model/Account';
 import Plant from './model/Plant'
-import { API_URL } from './service/Remote';
+import { API_URL } from './service/Constants';
 
 let styles;
 
 export default GardenPlantMgmt = ({ navigation, route }) => {
     const context = useContext(AppContext);
-    const [listRefresh, setListRefresh] = useState(false);
+    const [listRefresh, setListRefresh] = useState(false); //used to force a refresh
     const [plantList, setPlantList] = useState([]);
-    const [selectedID, setSelectedID] = useState(-1);
+    const [selectedID, setSelectedID] = useState(-1); //selected plant id
+    const [gardenIdx, setGardenIdx] = useState(-1);
+    const [gardenName, setGardenName] = useState("");
 
     useEffect(() => {
-        setPlantList(context.account.getActiveGarden().getPlants());
-        setListRefresh(!listRefresh);
+        if (context.account) {
+            setGardenIdx(context.account.activeGardenIdx);
+            setGardenName(context.account.activeGarden);
+
+            if (context.account.activeGardenIdx > 0) {
+                setIsWatched(context.account.getGardenAt(context.account.activeGardenIdx).isPlantWatched());
+                setIsPlanted(context.account.getGardenAt(context.account.activeGardenIdx).hasPlant(id));
+            }
+
+            setPlantList(context.account.getActiveGarden().getPlants());
+            setListRefresh(!listRefresh);
+        }
         return () => {
 
         };
@@ -27,11 +40,11 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
 
     const deletePlant = async (id) => {
         console.log(id);
-        let speciesID = context.account.getActiveGarden().getPlant(id).plantID;
-        let status = await context.account.getActiveGarden().removePlant(id, context.token, context.account.id);
+        let speciesID = context.account.getGardenAt(gardenIdx).getPlant(id).plantID;
+        let status = await context.account.getGardenAt(gardenIdx).removePlant(id, context.token, context.account.id);
         if (status) {
             setListRefresh(!listRefresh);
-            setPlantList(context.account.getActiveGarden().getPlants());
+            setPlantList(context.account.getGardenAt(gardenIdx).getPlants());
             setSelectedID(-1);
             Alert.alert("Removed " + getItemName(speciesID) + " from garden");
         } else {
@@ -41,7 +54,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
 
     const updatePlantingDate = async (id) => {
         console.log("Function called " + id);
-        context.account.getActiveGarden().updatePlantingDate(id, new Date());
+        context.account.getGardenAt(gardenIdx).updatePlantingDate(id, new Date());
         setListRefresh(!listRefresh);
     };
 
@@ -58,9 +71,27 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
             <FlatList data={plantList}
                       extraData={listRefresh}
                       ListHeaderComponent={
-                          <Text style={styles.plantListHeader}>
-                              Plants in your {'\n' + context.account.activeGarden + '\n'}garden
-                          </Text>}
+                          <View>
+                              <Text style={styles.plantListHeader}>
+                                  Plants in your {'\n' + gardenName + '\n'}garden
+                              </Text>
+                              <ModalDropdown options={context.account.getGardenList()}
+                                             defaultIndex={gardenIdx}
+                                             defaultValue={gardenName} 
+                                             style={styles.dropdown}
+                                             textStyle={styles.dropdownSelectedText}
+                                             dropdownTextStyle={styles.dropdownText}
+                                             dropdownTextHighlightStyle={styles.dropdownSelectedText}
+                                             onSelect={(idx, value) => {
+                                                setGardenIdx(idx);
+                                                if (idx >= 0) {
+                                                    setGardenName(context.account.getGardenAt(idx).name);
+                                                    setPlantList(context.account.getGardenAt(idx).getPlants());
+                                                }
+                                                setListRefresh(!listRefresh);
+                                            }}/>
+                          </View>
+                          }
                       keyExtractor={item => item.id}
                       renderItem={({item}) => (
                           <TouchableOpacity onPress={() => { setSelectedID(item.id) }}
@@ -136,5 +167,20 @@ styles = StyleSheet.create({
     plantButtonText: {
         color: 'white',
         fontSize: 20
+    },
+    dropdown: {
+        borderWidth: 1,
+        borderColor: 'black',
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+        borderRadius: 10,
+        marginTop: 10
+    },
+    dropdownSelectedText: {
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    dropdownText: {
+        fontSize: 20,
     }
 });

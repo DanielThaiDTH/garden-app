@@ -4,11 +4,26 @@ export default class Plant {
     plantDate;
     count;
 
+    /**
+     * Expects a plant information object that is returned from the backend API.
+     * @param {*} plantObj 
+     */
     constructor (plantObj = null) {
         if (plantObj) {
             this.id = plantObj.id;
             this.plantID = plantObj.plantID;
-            this.plantDate = plantObj.plantingDate;
+
+            // console.log('\n' + plantObj.plantingDate);
+            //Convert to date object or null
+            if (typeof plantObj.plantingDate === 'string')
+                this.plantDate = new Date(plantObj.plantingDate)
+            else if (plantObj.plantDate instanceof Date)
+                this.plantDate = plantObj.plantingDate;
+            else
+                this.plantDate = null;
+
+            // console.log(this.plantDate + '\n');
+
             this.count = plantObj.count ?? 0;
         } else {
             this.id = -1;
@@ -21,8 +36,10 @@ export default class Plant {
     static createPlant(speciesID = null, plantingDate = null) {
         let plant = new Plant();
 
-        if (!plantingDate instanceof Date)
+        if (!plantingDate instanceof Date && !typeof plantingDate === 'string')
             plantingDate = null;
+        else if (typeof plantingDate === 'string')
+            plantingDate = new Date(plantingDate);
         if (speciesID) plant.plantID = speciesID;
         plant.plantDate = plantingDate;
         
