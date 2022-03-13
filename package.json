@@ -5,6 +5,9 @@
   "scripts": {
     "start": "expo start",
     "test": "jest ./test",
+    "testDesc": "jest --verbose ./test",
+    "lint": "./node_modules/.bin/eslint App.js ./src/**",
+    "prettier": "./node_modules/.bin/prettier App.js ./src/**",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
@@ -41,10 +44,18 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
-    "axios": "^0.26.0"
+    "axios": "^0.26.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-react": "^7.29.3",
+    "eslint-plugin-react-native": "^4.0.0",
+    "prettier": "^2.5.1"
   },
   "jest": {
     "preset": "jest-expo"
+  },
+  "prettier": {
+    "jsxBracketSameLine": true,
+    "semi": false
   },
   "private": true
 }

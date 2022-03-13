@@ -6,7 +6,6 @@ import {
     StyleSheet,
     Dimensions,
     TextInput,
-    secure,
     Alert
 } from 'react-native';
 
@@ -57,7 +56,6 @@ export default CreateModal = ({cont}) => {
                         style={styles.passwordCreateInput}
                         placeholder="Password"
                         onChangeText={pass => setNewPassword(pass)}
-                        secureTextEntry={secure}
                         secureTextEntry={true}
                         value={newPassword} />
                     <TouchableOpacity style={[styles.createButtons, styles.createButtonOk]}
