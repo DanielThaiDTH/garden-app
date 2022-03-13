@@ -1,24 +1,28 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
-import { Alert, Modal, Platform, Dimensions } from 'react-native';
+import { Alert, Modal, Platform, Dimensions, RefreshControl } from 'react-native';
 import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import ModalDropdown from 'react-native-modal-dropdown';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import AppContext from './context/AppContext';
 import Garden from './model/Garden';
 import Account from './model/Account';
 import Plant from './model/Plant'
 import { API_URL } from './service/Constants';
+import AddPlantModal from './components/AddPlantModal';
 
 let styles;
 
+/** Must have a garden with an account */
 export default GardenPlantMgmt = ({ navigation, route }) => {
     const context = useContext(AppContext);
     const [listRefresh, setListRefresh] = useState(false); //used to force a refresh
     const [plantList, setPlantList] = useState([]);
     const [selectedID, setSelectedID] = useState(-1); //selected plant id
     const [gardenIdx, setGardenIdx] = useState(-1);
-    const [gardenName, setGardenName] = useState("");
+    const [gardenName, setGardenName] = useState(context.account.activeGarden ?? "" );
+    const [addModalVisible, setAddModalVisible] = useState(false);
 
     useEffect(() => {
         if (context.account) {
@@ -38,8 +42,8 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
         };
     },[context.account]);
 
+
     const deletePlant = async (id) => {
-        console.log(id);
         let speciesID = context.account.getGardenAt(gardenIdx).getPlant(id).plantID;
         let status = await context.account.getGardenAt(gardenIdx).removePlant(id, context.token, context.account.id);
         if (status) {
@@ -53,7 +57,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
     };
 
     const updatePlantingDate = async (id) => {
-        console.log("Function called " + id);
+        //console.log("Function called " + id);
         context.account.getGardenAt(gardenIdx).updatePlantingDate(id, new Date());
         setListRefresh(!listRefresh);
     };
@@ -64,6 +68,12 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
             return found.plantName;
         else
             return "Name not found"
+    };
+
+    const dropdownAdjust = (dropdownStyle) => {
+        dropdownStyle.top -= 30;
+        dropdownStyle.width = Dimensions.get('window').width*0.8;
+        return dropdownStyle;
     };
 
     return (
@@ -81,7 +91,9 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                                              style={styles.dropdown}
                                              textStyle={styles.dropdownSelectedText}
                                              dropdownTextStyle={styles.dropdownText}
+                                             dropdownStyle={styles.dropdownMenu}
                                              dropdownTextHighlightStyle={styles.dropdownSelectedText}
+                                             adjustFrame={dropdownAdjust}
                                              onSelect={(idx, value) => {
                                                 setGardenIdx(idx);
                                                 if (idx >= 0) {
@@ -106,6 +118,10 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                                         {item.plantDate ? "Update" : "Plant"}
                                     </Text>
                                 </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigation.push('plant-info', { id: item.plantID })}
+                                                  style={styles.infoButton}>
+                                      <Ionicons name={'md-information-circle'} size={30} color={'blue'} />
+                                </TouchableOpacity>
                               </View>
                               <Text>
                                   {item.plantDate ? item.plantDate.toLocaleDateString() :  "Not planted yet"}
@@ -114,9 +130,18 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                       )}
                       >
             </FlatList>
+            <Button title='Add Plant' onPress={() => {
+                setAddModalVisible(!addModalVisible);
+            }}/>
             <Button color={'red'} title='Delete plant' onPress={() => {
                 deletePlant(selectedID);
             }}/>
+            <AddPlantModal visibleState={{value: addModalVisible, setValue: setAddModalVisible }} 
+                           callback={() => { 
+                               setPlantList(context.account.getGardenAt(gardenIdx).getPlants());
+                               setListRefresh(true);
+                             }}
+                           gardenIdx={gardenIdx}/>
         </View>
     );
 };
@@ -168,6 +193,11 @@ styles = StyleSheet.create({
         color: 'white',
         fontSize: 20
     },
+    infoButton: {
+        padding: 10,
+        alignContent: 'center',
+        flex: 0
+    },
     dropdown: {
         borderWidth: 1,
         borderColor: 'black',
@@ -176,6 +206,11 @@ styles = StyleSheet.create({
         borderRadius: 10,
         marginTop: 10
     },
+    dropdownMenu: {
+        marginTop: 0,
+        paddingHorizontal: 10,
+        marginHorizontal: 0
+    },  
     dropdownSelectedText: {
         fontSize: 20,
         fontWeight: 'bold'

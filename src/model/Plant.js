@@ -36,10 +36,11 @@ export default class Plant {
     static createPlant(speciesID = null, plantingDate = null) {
         let plant = new Plant();
 
-        if (!plantingDate instanceof Date && !typeof plantingDate === 'string')
+        if (!(plantingDate instanceof Date) && !(typeof plantingDate === 'string'))
             plantingDate = null;
         else if (typeof plantingDate === 'string')
             plantingDate = new Date(plantingDate);
+    
         if (speciesID) plant.plantID = speciesID;
         plant.plantDate = plantingDate;
         

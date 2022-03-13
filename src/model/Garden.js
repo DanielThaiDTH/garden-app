@@ -40,12 +40,12 @@ export default class Garden {
                     let res = await fetch(API_URL + "/plant/" + plant.plantID, {
                         method: "POST",
                         headers: { 'Content-Type': "application/json", 'Authorization': 'Bearer ' + token },
-                        body: JSON.stringify({ gardenID: this.id, userID: userID })
+                        body: JSON.stringify({ gardenID: this.id, userID: userID, date: plant.plantDate })
                     });
                     if (res.ok) {
                         let newPlants = (await res.json()).updatedPlants;
                         this.#plants = newPlants.map(p => new Plant(p));
-                        //this.#plants.push(plant);
+                        //this.#plants.push(plant);r
                     } else {
                         console.log("Unable to add new plant due to database error");
                         console.log((await res.json()));

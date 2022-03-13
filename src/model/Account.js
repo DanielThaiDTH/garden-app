@@ -104,6 +104,13 @@ export default class Account {
         return this.#gardens.map(g => g.name);
     }
 
+    getGardenCount() {
+        if (this.#gardens)
+            return this.#gardens.length;
+        else
+            return 0;
+    }
+
     getGarden(name) {
         return this.#gardens.find(g => g.name === name);
     }

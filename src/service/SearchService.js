@@ -25,14 +25,14 @@ const filterSearchByZone = (results, plantList, zone) => {
 /**
  * Searches plants using the given text. The context is used for 
  * the climate data for filtering. The setData parameter should be 
- * a callback that sets a React state variable.
+ * a callback that sets a React state variable. Returns an error message.
  * @param {string} text 
  * @param {boolean} filterOn 
  * @param {*} context 
  * @param {callbackFn} setData
  * @returns {Promise<string>} A message if something went wrong, null if ok
  */
-export const searchPlant = async (text, filterOn, context, setData) => {
+export const searchPlant = async (text, context, setData, filterOn = false) => {
     try {
         let res = await (await fetch(`${API_URL}/search?q=${text}`)).json();
         console.log(res);

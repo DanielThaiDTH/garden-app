@@ -171,7 +171,7 @@ export default PlantInfo = ({route, navigation}) => {
             if (status) {
                 Alert.alert(`${data.plantName} added to your ${context.account.activeGarden} garden.`);
             } else {
-                Alert.alert("could not add this plant to your garden.");
+                Alert.alert("Could not add this plant to your garden.");
             }
         });
     };

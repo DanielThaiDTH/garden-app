@@ -39,7 +39,8 @@ export default AppMenu = ({navigation, name}) => {
                 </MenuTrigger>
                 <MenuOptions>
                     <Text style={styles.menuHeader}>
-                        {(name && name.length > 0) ? name : "Guest"}
+                        {(name && name.length > 0) ? name : "Guest"} 
+                        {context.account && context.account.activeGarden ? ('\n' + context.account.activeGarden) : ""}
                     </Text>
                     <MenuOption value={1} 
                                 text='Manage Gardens' 

@@ -148,7 +148,7 @@ export default MainPage = ({navigation}) => {
 
         let search = (text) => {
             setLoading(true);
-            searchPlant(text, filterOn, context, setData)
+            searchPlant(text, context, setData, filterOn)
             .then((errMsg) => {
                 if (errMsg) {
                     setErr(errMsg);

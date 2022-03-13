@@ -28,9 +28,9 @@ export default SettingsPage = ({navigation}) => {
                               }}>
                 <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}>Manage Garden</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, context.account ? styles.plantButton : styles.disabledButton]}
+            <TouchableOpacity style={[styles.button, context.account && context.account.getGardenCount() ? styles.plantButton : styles.disabledButton]}
                               onPress={() => {
-                                    if (context.account) {
+                                    if (context.account && context.account.getGardenCount()) {
                                         navigation.push('plant-list');
                                     }
                               }}>
