@@ -17,13 +17,20 @@ export default StyleSheet.create({
         borderBottomWidth: 2,
         textAlign: 'center'
     },
+    itemShadow: {
+        width: Dimensions.get('window').width*0.9,
+        marginVertical: 5,
+        alignSelf: 'flex-end',
+        justifyContent: 'center',
+        paddingHorizontal: 15
+    },
+    //For PlantMgmtListItem
     plantItem: {
+        width: Dimensions.get('window').width * 0.85,
         paddingVertical: 20,
         borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'grey',
-        marginVertical: 5,
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
+        backgroundColor: 'white'
     },
     plantName: {
         fontFamily: 'Ubuntu',

@@ -20,7 +20,7 @@ export const getCoordinates = async (context) => {
         let mock_location = { coords: { latitude: 43.829859, longitude: -79.5750729 } }
         context.setLocation(mock_location);
         Alert.alert("Using mock location of Toronto, Appetize does not provide location service on the simulator. \
-                \   \   \   Set SIM_MODE in MainPage.js to false to use geolocation with an iOS device.");
+                         Set SIM_MODE in MainPage.js to false to use geolocation with an iOS device.");
     } else {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {

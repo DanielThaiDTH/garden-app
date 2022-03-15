@@ -96,7 +96,6 @@ export default MainPage = ({navigation}) => {
             .then(json => {
                 if (!json || json.error) {
                     console.error(json ? json.error : "No data.");
-                    setConnectError(true);
                 } else {
                     if (!json.current)
                         console.log(json);
@@ -109,7 +108,6 @@ export default MainPage = ({navigation}) => {
                 }
             }).catch(err => {
                 console.log(err);
-                setConnectError(true);
             });
         return () => {
         };
@@ -180,7 +178,7 @@ export default MainPage = ({navigation}) => {
         return (
             <View style={styles.container}>
                 <Text style={styles.greeting}>Hello {(context.curUsername && context.curUsername.length > 0)? context.curUsername:"guest"}!</Text>
-                {context.curUsername.length > 0 && context.account && context.account.gardenCount() === 0 && 
+                {context.curUsername.length > 0 && context.account && context.account.getGardenCount() === 0 && 
                     <Pressable style={styles.addGarden}
                             onPress={()=>navigation.push('garden-list', {initialAdd: true})} >
                         <Text style={styles.addGardenText}>You have no gardens yet, add one here.</Text>

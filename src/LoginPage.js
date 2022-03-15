@@ -1,9 +1,5 @@
-import React, { useEffect, useState, useContext, createContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Button, 
-        secure, Image, ImageBackground, ImageBackgroundComponent, Alert } from 'react-native';
-import { Modal } from 'react-native';
-import { Dimensions } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useState, useContext, createContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import AppContext from './context/AppContext';
 import Account from './model/Account';

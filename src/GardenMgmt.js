@@ -27,7 +27,7 @@ export default GardenMgmt = ({navigation, route}) => {
                 return;
             
             //Get location from active garden
-            if (context.account && context.account.gardenCount() > 0 && context.account.activeGarden) {
+            if (context.account && context.account.getGardenCount() > 0 && context.account.activeGarden) {
                 let garden = context.account.getActiveGarden();
                 console.log(`New lat ${garden.lat}, new lon ${garden.lon}`);
                 context.setLocation({ coords: { latitude: garden.lat, longitude: garden.lon } });

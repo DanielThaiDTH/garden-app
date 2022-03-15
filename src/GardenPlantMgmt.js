@@ -31,11 +31,6 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
             setGardenIdx(context.account.activeGardenIdx);
             setGardenName(context.account.activeGarden);
 
-            if (context.account.activeGardenIdx > 0) {
-                setIsWatched(context.account.getGardenAt(context.account.activeGardenIdx).isPlantWatched());
-                setIsPlanted(context.account.getGardenAt(context.account.activeGardenIdx).hasPlant(id));
-            }
-
             setPlantList(context.account.getActiveGarden().getPlants());
             setListRefresh(!listRefresh);
         }
@@ -67,7 +62,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
     const dropdownAdjust = (dropdownStyle) => {
         dropdownStyle.top -= 30;
         dropdownStyle.width = Dimensions.get('window').width*0.8;
-        dropdownStyle.height = Math.min(context.account.gardenCount()*50, 200);
+        dropdownStyle.height = Math.min(context.account.getGardenCount()*50, 200);
         return dropdownStyle;
     };
 

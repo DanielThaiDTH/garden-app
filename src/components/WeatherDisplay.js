@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
-import { Alert, Platform, PermissionsAndroid, Linking } from 'react-native';
-import { Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable } from 'react-native';
+import React, { useContext } from 'react';
+import { Text, Image, View, StyleSheet, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Shadow } from 'react-native-shadow-2';
 import { API_URL } from '../service/Constants';
@@ -64,17 +63,6 @@ const styles = StyleSheet.create({
 export default WeatherDisplay = ({nav, data}) => {
     const context = useContext(AppContext);
     const navigation = nav;
-
-    // //Set the location
-    // useEffect(() => {
-    //     console.log(context.location);
-    //     if (!context.location || (context.location.coords.latitude === lat && context.location.coords.longitude === long))
-    //         return;
-        
-    //     setLat(context.location.coords.latitude);
-    //     setLong(context.location.coords.longitude);
-    //     return () => {};
-    // }, [context.location]);
 
     if (data) {
         return (

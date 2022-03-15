@@ -2,7 +2,7 @@ import Plant from "./Plant";
 import { API_URL } from "../service/Constants";
 
 export default class Garden {
-    id = -1;
+    id;
     lat;
     lon;
     zone;
@@ -84,7 +84,7 @@ export default class Garden {
                 });
                 if (res.ok) {
                     let isDeleted = (await res.json()).deleted;
-                    console.log(isDeleted);
+                    console.log("Deleted: " + isDeleted);
                     if (isDeleted) {
                         this.#plants = this.#plants.filter(p => p.id !== id);
                         status = true;
@@ -167,8 +167,8 @@ export default class Garden {
      */
     hasPlant(speciesID) {
         let found = this.#plants.find(p => p.plantID === speciesID);
-        console.log(this.#plants);
-        console.log(speciesID);
+        //console.log(this.#plants);
+        console.log("Checking id " + speciesID);
 
         return !!found;
     }
@@ -183,13 +183,17 @@ export default class Garden {
         return this.#plants ?? [];
     }
 
+    getPlantCount() {
+        return this.#plants?.length ?? 0;
+    }
+
     getPlant(id) {
         return this.#plants.find(p => p.id === id) ?? {};
     }
 
     updatePlantingDate(plantID, date) {
-        console.log(plantID + " " + date.toLocaleDateString())
-        let plant = this.#plants.find(p => {console.log(p.id);  return p.id === plantID});
+        console.log("Updated planting date to " + plantID + " " + date.toLocaleDateString());
+        let plant = this.#plants.find(p => { return p.id === plantID});
 
         console.log(plant);
 

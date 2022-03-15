@@ -17,7 +17,7 @@ export default class Account {
         if (!acc) {
             this.name = null;
             this.id = null;
-            this.#gardens = null;
+            this.#gardens = [];
             this.activeGarden = null;
         } else {
             this.name = acc.username;
@@ -94,10 +94,6 @@ export default class Account {
         this.#gardens = this.#gardens.filter(g => g.name !== name);
         this.activeGarden = (this.#gardens.length > 0) ? this.#gardens[0].name : null;
         return "Garden deleted";
-    }
-
-    gardenCount() {
-        return this.#gardens.length;
     }
 
     getGardenList() {

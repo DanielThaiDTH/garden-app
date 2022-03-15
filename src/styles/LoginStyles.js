@@ -104,7 +104,6 @@ export default StyleSheet.create({
         fontFamily: 'Ubuntu',
     },
     Login: {
-        justifyContent: 'center',
         textAlign: 'center',
         alignItems: 'center',
         fontSize: 25,
@@ -141,7 +140,6 @@ export default StyleSheet.create({
         fontFamily: 'Ubuntu',
         marginVertical: 10,
         width: Dimensions.get('window').width * 0.8 + 10,
-        bottom: 29,
         fontWeight: "bold",
         left: 65,
         bottom: -9
