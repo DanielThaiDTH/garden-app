@@ -26,15 +26,23 @@ const App = () => {
     UbuntuItalic: require("./assets/fonts/Ubuntu-Italic.ttf"),
     UbuntuBold: require("./assets/fonts/Ubuntu-Bold.ttf"),
   })
-  const [location, setLocation] = useState(null)
-  const [curUsername, setCurUsername] = useState("")
-  const [token, setToken] = useState("")
-  const [account, setAccount] = useState(null)
-  const [plantInfo, setPlantInfo] = useState(null)
-  const [zone, setZone] = useState(-1)
-  const [weatherData, setWeatherData] = useState(null)
-  const [visible, setVisible] = useState(false)
-  const loginContextValue = { visible, setVisible }
+  const [location, setLocation] = useState(null);
+  const [curUsername, setCurUsername] = useState("");
+  const [token, setToken] = useState("");
+  const [account, setAccount] = useState(null);
+  const [plantInfo, setPlantInfo] = useState(null);
+  const [zone, setZone] = useState(-1);
+  const [weatherData, setWeatherData] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const loginContextValue = { visible, setVisible };
+  const getPlantName = (id, context) => {
+    let found = context.plantInfo.find(pi => pi.UID === id);
+    if (found)
+      return found.plantName;
+    else
+      return "Name not found";
+  };
+  
   const contextValue = useMemo(
     () => ({
       curUsername,
@@ -51,6 +59,7 @@ const App = () => {
       setZone,
       weatherData,
       setWeatherData,
+      getPlantName
     }),
     [curUsername, token, location, account, plantInfo, zone, weatherData]
   )

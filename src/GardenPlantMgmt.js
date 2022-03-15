@@ -11,6 +11,7 @@ import Account from './model/Account';
 import Plant from './model/Plant'
 import { API_URL } from './service/Constants';
 import AddPlantModal from './components/AddPlantModal';
+import PlantMgmtListItem from './components/PlantMgmtListItem';
 import GardenPlantMgmtStyles from './styles/GardenPlantMgmtStyles';
 
 const styles = GardenPlantMgmtStyles;
@@ -51,7 +52,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
             setListRefresh(!listRefresh);
             setPlantList(context.account.getGardenAt(gardenIdx).getPlants());
             setSelectedID(-1);
-            Alert.alert("Removed " + getItemName(speciesID) + " from garden");
+            Alert.alert("Removed " + context.getPlantName(speciesID, context) + " from garden");
         } else {
             Alert.alert("Could not delete plant.");
         }
@@ -63,17 +64,10 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
         setListRefresh(!listRefresh);
     };
 
-    const getItemName = (id) => {
-        let found = context.plantInfo.find(pi => pi.UID === id);
-        if (found)
-            return found.plantName;
-        else
-            return "Name not found"
-    };
-
     const dropdownAdjust = (dropdownStyle) => {
         dropdownStyle.top -= 30;
         dropdownStyle.width = Dimensions.get('window').width*0.8;
+        dropdownStyle.height = Math.min(context.account.gardenCount()*50, 200);
         return dropdownStyle;
     };
 
@@ -107,27 +101,11 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                           }
                       keyExtractor={item => item.id}
                       renderItem={({item}) => (
-                          <TouchableOpacity onPress={() => { setSelectedID(item.id) }}
-                              style={styles.plantItem}>
-                              <View style={styles.horizontalView}>
-                                <Text style={item.id === selectedID ? styles.plantSelectedName : styles.plantName}>
-                                    {getItemName(item.plantID)}
-                                </Text>
-                                <TouchableOpacity onPress={() => updatePlantingDate(item.id)}
-                                                  style={styles.plantButton}>
-                                    <Text style={styles.plantButtonText}>
-                                        {item.plantDate ? "Update" : "Plant"}
-                                    </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => navigation.push('plant-info', { id: item.plantID })}
-                                                  style={styles.infoButton}>
-                                      <Ionicons name={'md-information-circle'} size={30} color={'blue'} />
-                                </TouchableOpacity>
-                              </View>
-                              <Text>
-                                  {item.plantDate ? item.plantDate.toLocaleDateString() :  "Not planted yet"}
-                              </Text>
-                          </TouchableOpacity>
+                          <PlantMgmtListItem item={item}
+                                             selectedID={selectedID}
+                                             pressCallback={() => setSelectedID(item.id) }
+                                             infoCallback={() => navigation.push('plant-info', { id: item.plantID })}
+                                             plantDateCallback={() => updatePlantingDate(item.id)}/>
                       )}
                       >
             </FlatList>

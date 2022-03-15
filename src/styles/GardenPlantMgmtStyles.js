@@ -19,10 +19,11 @@ export default StyleSheet.create({
     },
     plantItem: {
         paddingVertical: 20,
-        borderTopColor: 'lightgrey',
-        borderTopWidth: 1,
-        borderBottomColor: 'lightgrey',
-        borderBottomWidth: 1
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        marginVertical: 5,
+        paddingHorizontal: 10
     },
     plantName: {
         fontFamily: 'Ubuntu',
@@ -32,6 +33,12 @@ export default StyleSheet.create({
         fontFamily: 'UbuntuBold',
         fontSize: 20
     },
+    itemMainView: {
+        display: 'flex',
+        flexDirection: 'column',
+        margin: 0,
+        padding: 0
+    },
     horizontalView: {
         display: 'flex',
         flexDirection: 'row',
@@ -40,6 +47,11 @@ export default StyleSheet.create({
         margin: 0,
         padding: 0
     },
+    divider: {
+        borderBottomColor: 'grey',
+        borderBottomWidth: 1,
+        marginBottom: 5
+    },  
     plantButton: {
         backgroundColor: 'green',
         padding: 10
@@ -51,7 +63,13 @@ export default StyleSheet.create({
     infoButton: {
         padding: 10,
         alignContent: 'center',
-        flex: 0
+        flex: 0,
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    infoText: {
+        fontFamily: 'Ubuntu',
+        fontSize: 20
     },
     dropdown: {
         borderWidth: 1,
