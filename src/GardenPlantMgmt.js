@@ -53,6 +53,10 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
         }
     };
 
+    const reportPlant = async (id) => {
+
+    };
+
     const updatePlantingDate = async (id) => {
         //console.log("Function called " + id);
         context.account.getGardenAt(gardenIdx).updatePlantingDate(id, new Date());
@@ -110,6 +114,12 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
             <Button color={'red'} title='Delete plant' onPress={() => {
                 deletePlant(selectedID);
             }}/>
+
+
+            <Button color={'green'} title='View Report' onPress={() => Alert.alert('Simple Button pressed')}/>
+
+
+
             <AddPlantModal visibleState={{value: addModalVisible, setValue: setAddModalVisible }} 
                            callback={() => { 
                                setPlantList(context.account.getGardenAt(gardenIdx).getPlants());
