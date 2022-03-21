@@ -116,7 +116,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
             }}/>
 
 
-            <Button color={'green'} title='View Report' onPress={() => Alert.alert('Simple Button pressed')}/>
+            <Button color={'green'} title='View Report' onPress={() => Alert.alert('Report Button Pressed')}/>
 
 
 

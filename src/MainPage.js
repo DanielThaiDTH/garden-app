@@ -258,7 +258,9 @@ export default MainPage = ({navigation}) => {
               } else if (route.name === 'forecast') {
                 iconName = focused ? 'ios-cloud' : 'ios-cloud-outline';
               } else if (route.name === 'Settings') {
-                  iconName = 'md-settings'
+                  iconName = 'md-settings-outline'
+              }else if (route.name === 'Blog') {
+                iconName = 'md-create-outline';
               }
   
               return <Ionicons name={iconName} size={size} color={color} />;
@@ -267,8 +269,9 @@ export default MainPage = ({navigation}) => {
             tabBarInactiveTintColor: 'gray',
           })}>
           <Tab.Screen name="Home" component={HomeScreen} options={{title: "Welcome To Oracle"}} />
-          <Tab.Screen name="forecast" component={Forecast} options={{title: "7-day Forecast"}}/>
+          <Tab.Screen name="forecast" component={Forecast} options={{title: "7-day Forecast"}} />
           <Tab.Screen name="Settings" component={SettingsPage} options={{title: "Settings"}}/>
+          <Tab.Screen name="Blog" component={SettingsPage} options={{title: "Blog"}}/>
         </Tab.Navigator>
        
     );
