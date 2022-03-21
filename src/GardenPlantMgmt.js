@@ -131,13 +131,6 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
             <Button color={'red'} title='Delete plant' onPress={() => {
                 deletePlant(selectedID);
             }}/>
-
-
-            <Button color={'red'} title='View Report ' onPress={() => {
-                    reportPlant(selectedID);
-            }}/>
-
-
             <AddPlantModal visibleState={{value: addModalVisible, setValue: setAddModalVisible }} 
                            callback={() => { 
                                setPlantList(context.account.getGardenAt(gardenIdx).getPlants());

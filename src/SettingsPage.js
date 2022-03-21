@@ -29,6 +29,14 @@ export default SettingsPage = ({navigation}) => {
                               }}>
                 <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}>Manage Plants</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={[styles.button, context.account && context.account.getGardenCount() ? styles.reportButton : styles.disabledButton]}
+                              onPress={() => {
+                                    if (context.account && context.account.getGardenCount()) {
+                                        navigation.push('account-report');
+                                    }
+                              }}>
+                <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}>Account Report</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -63,6 +71,9 @@ styles = StyleSheet.create({
     },
     plantButton: {
         borderColor: 'green'
+    },
+    reportButton: {
+        borderColor: 'red'
     },
     disabledButton: {
         borderColor: 'darkgrey'

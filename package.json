@@ -13,7 +13,7 @@
     "web": "expo start --web",
     "eject": "expo eject"
   },
-  "author": "Daniel Thai, Jonny Amalanathan",
+  "author": "Daniel Thai, Jonny Mahendran",
   "dependencies": {
     "@react-native-community/geolocation": "^2.0.2",
     "@react-navigation/bottom-tabs": "^6.2.0",
