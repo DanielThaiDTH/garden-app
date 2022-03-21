@@ -25,11 +25,14 @@ import { getCoordinates } from './service/LocationService';
 import { searchPlant } from './service/SearchService';
 import { API_URL } from './service/Constants';
 import MainPageStyles from './styles/MainPageStyles';
+import { MarkdownView } from 'react-native-markdown-view'
 
 
 let MainPage;
 const styles = MainPageStyles;
 const Tab = createBottomTabNavigator();
+
+
 
 
 export default MainPage = ({navigation}) => {
@@ -245,6 +248,25 @@ export default MainPage = ({navigation}) => {
         );
     }
 
+    function Blog()
+    {
+        return (
+            <MarkdownView>
+            # MarkdownView{'\n'}
+                {'\n'}
+                **React Native** is even better with Markdown!{'\n'}
+                {'\n'}
+                ![RN Logo](https://reactjs.org/logo-og.png =120x63){'\n'}
+                {'\n'}
+                `react-native-markdown-view` is:{'\n'}
+                {'\n'}
+                * Easy to use{'\n'}
+                * Looks good by default{'\n'}
+                * Is __extensible__{'\n'}
+            </MarkdownView>
+        )
+    }
+
     return (
         <Tab.Navigator
           screenOptions={({ route }) => ({
@@ -271,7 +293,7 @@ export default MainPage = ({navigation}) => {
           <Tab.Screen name="Home" component={HomeScreen} options={{title: "Welcome To Oracle"}} />
           <Tab.Screen name="forecast" component={Forecast} options={{title: "7-day Forecast"}} />
           <Tab.Screen name="Settings" component={SettingsPage} options={{title: "Settings"}}/>
-          <Tab.Screen name="Blog" component={SettingsPage} options={{title: "Blog"}}/>
+          <Tab.Screen name="Blog" component={Blog} options={{title: "Blog"}}/>
         </Tab.Navigator>
        
     );

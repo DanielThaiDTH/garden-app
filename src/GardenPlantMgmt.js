@@ -54,6 +54,23 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
     };
 
     const reportPlant = async (id) => {
+        <ModalDropdown options={context.account.getGardenList()}
+                                             defaultIndex={gardenIdx}
+                                             defaultValue={gardenName} 
+                                             style={styles.dropdown}
+                                             textStyle={styles.dropdownSelectedText}
+                                             dropdownTextStyle={styles.dropdownText}
+                                             dropdownStyle={styles.dropdownMenu}
+                                             dropdownTextHighlightStyle={styles.dropdownSelectedText}
+                                             adjustFrame={dropdownAdjust}
+                                             onSelect={(idx, value) => {
+                                                setGardenIdx(idx);
+                                                if (idx >= 0) {
+                                                    setGardenName(context.account.getGardenAt(idx).name);
+                                                    setPlantList(context.account.getGardenAt(idx).getPlants());
+                                                }
+                                                setListRefresh(!listRefresh);
+                                            }}/>
 
     };
 
@@ -116,8 +133,9 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
             }}/>
 
 
-            <Button color={'green'} title='View Report' onPress={() => Alert.alert('Report Button Pressed')}/>
-
+            <Button color={'red'} title='View Report ' onPress={() => {
+                    reportPlant(selectedID);
+            }}/>
 
 
             <AddPlantModal visibleState={{value: addModalVisible, setValue: setAddModalVisible }} 
