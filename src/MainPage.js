@@ -22,10 +22,9 @@ import AppContext from './context/AppContext';
 import LoginModal from './components/LoginModal';
 import SettingsPage from './SettingsPage';
 import { getCoordinates } from './service/LocationService';
-import { searchPlant } from './service/SearchService';
+import { searchPlant, searchBlog } from './service/SearchService';
 import { API_URL } from './service/Constants';
 import MainPageStyles from './styles/MainPageStyles';
-import { MarkdownView } from 'react-native-markdown-view'
 
 
 let MainPage;
@@ -135,9 +134,17 @@ export default MainPage = ({navigation}) => {
         const [filterOn, setFilterOn] = useState(true);
         const [data, setData] = useState(null);
         const [text, setText] = useState('');
+        const [blogQuery, setBlogQuery] = useState('');
+        const [blogResults, setBlogResults] = useState(null);
+        const [blogLoading, setBlogLoading] = useState(false);
+        const [tags, setTags] = useState([]);
         const [err, setErr] = useState('');
         const mountRef = useRef(true);
 
+        /**
+         * Searches for a plant
+         * @param {string} text 
+         */
         let search = (text) => {
             setLoading(true);
             searchPlant(text, context, setData, filterOn)
@@ -150,6 +157,20 @@ export default MainPage = ({navigation}) => {
                 }
                 setLoading(false);
             });
+        };
+
+        /**
+         * Searches for a blog
+         * @param {string} text 
+         */
+        let blogSearch = (text) => {
+            setBlogLoading(true);
+            searchBlog(text, tags)
+                .then((res)=>{
+                    setBlogResults(res);
+                })
+                .catch(err => Alert(err.message))
+                .finally(() => setBlogLoading(false));
         };
 
         if (connectError) {
@@ -233,7 +254,38 @@ export default MainPage = ({navigation}) => {
                             </Shadow>
                         </View>
                     )}
-                {/* <WeatherDisplay location={context.location} /> */}
+                <Text style={styles.searchLabel}>Blog Search</Text>
+                <TextInput
+                    style={styles.searchbar}
+                    placeholder="Enter blog to search for"
+                    onChangeText={text => setBlogQuery(text)}
+                    onSubmitEditing={() => blogSearch(blogQuery)}
+                    defaultValue={blogQuery}
+                />
+                {blogLoading ? <ActivityIndicator size="large" color="#00ff00" /> :
+                    (blogResults && 
+                        <View style={blogResults.length > 0 ? styles.searchContainer : styles.searchContainerEmpty}>
+                            <Shadow offset={[2, 3]} distance={5}>
+                                <View style={styles.searchInterior}>
+                                    <Text style={styles.listHeader}>Search Results</Text>
+                                    <FlatList data={blogResults}
+                                    keyExtractor={item => item.BlogID}
+                                        renderItem={({ item }) =>
+                                            <View style={styles.listItem}>
+                                                <Pressable onPress={() => navigation.push('blog', { id: item.BlogID })}
+                                                    style={({ pressed }) => [{
+                                                        backgroundColor: pressed ? '#d0c0a0' : 'beige',
+                                                        borderRadius: 3,
+                                                        paddingHorizontal: 5
+                                                    }]}>
+                                                    <Text>{item.Title}</Text>
+                                                </Pressable>
+                                            </View>
+                                        } />
+                                </View>
+                            </Shadow>
+                        </View>
+                    )}
                 <LoginModal/>
             </View>
         );
@@ -248,23 +300,9 @@ export default MainPage = ({navigation}) => {
         );
     }
 
-    function Blog()
+    function BlogScreen()
     {
-        return (
-            <MarkdownView>
-            # MarkdownView{'\n'}
-                {'\n'}
-                **React Native** is even better with Markdown!{'\n'}
-                {'\n'}
-                ![RN Logo](https://reactjs.org/logo-og.png =120x63){'\n'}
-                {'\n'}
-                `react-native-markdown-view` is:{'\n'}
-                {'\n'}
-                * Easy to use{'\n'}
-                * Looks good by default{'\n'}
-                * Is __extensible__{'\n'}
-            </MarkdownView>
-        )
+        return (<View></View>);
     }
 
     return (
@@ -293,7 +331,7 @@ export default MainPage = ({navigation}) => {
           <Tab.Screen name="Home" component={HomeScreen} options={{title: "Welcome To Oracle"}} />
           <Tab.Screen name="forecast" component={Forecast} options={{title: "7-day Forecast"}} />
           <Tab.Screen name="Settings" component={SettingsPage} options={{title: "Settings"}}/>
-          <Tab.Screen name="Blog" component={Blog} options={{title: "Blog"}}/>
+          <Tab.Screen name="Blog" component={BlogScreen} options={{title: "Blog"}}/>
         </Tab.Navigator>
        
     );

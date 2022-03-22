@@ -50,3 +50,34 @@ export const searchPlant = async (text, context, setData, filterOn = false) => {
         return error.message;
     }
 };
+
+
+/**
+ * 
+ * @param {string} query 
+ * @param {ReactSetStateFn} setData 
+ * @param {Array<number>} tags 
+ * @returns The results of the search
+ * @throws If there was a search error
+ */
+export const searchBlog = async (query, tags) => {
+    try {
+        let res = await (
+            await fetch(`${API_URL}/blog/search`, 
+            {
+                method: 'POST',
+                headers: { 'Content-Type': "application/json" },
+                body: JSON.stringify({ query: query, tags: tags })
+            }
+        )).json();
+        console.log(res);
+        if (res.error) {
+            throw new Error(res.error);
+        } else {
+            return res;
+        }
+    } catch (error) {
+        console.error(error.message);
+        throw error;
+    }
+};

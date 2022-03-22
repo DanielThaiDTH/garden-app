@@ -19,6 +19,7 @@
     "@react-navigation/bottom-tabs": "^6.2.0",
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
+    "@types/node-fetch": "^2.6.1",
     "expo": "^44.0.5",
     "expo-blur": "~11.0.0",
     "expo-font": "~10.0.4",
@@ -27,12 +28,13 @@
     "html-entities": "^2.3.2",
     "jest": "^26.6.3",
     "jest-expo": "^44.0.1",
-    "node-fetch": "^3.2.0",
+    "node-fetch": "^2.6.7",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
     "react-native-calendars": "^1.1277.0",
     "react-native-geolocation-service": "^5.3.0-beta.4",
+    "react-native-markdown-display": "^7.0.0-alpha.2",
     "react-native-markdown-view": "^1.1.4",
     "react-native-modal-dropdown": "^1.0.2",
     "react-native-popup-menu": "^0.15.12",
@@ -57,7 +59,8 @@
   },
   "prettier": {
     "jsxBracketSameLine": true,
-    "semi": true
+    "semi": true,
+    "tabWidth": 4
   },
   "private": true
 }

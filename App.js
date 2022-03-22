@@ -15,8 +15,10 @@ import LoginPage from "./src/LoginPage"
 import GardenMgmt from "./src/GardenMgmt"
 import LoginContext from "./src/context/LoginContext"
 import GardenPlantMgmt from "./src/GardenPlantMgmt"
+import BlogPage from "./src/BlogPage"
 import AccountReport from "./src/AccountReport"
 import { API_URL } from "./src/service/Constants"
+import Blog from "./src/model/Blog"
 
 const NavStack = createNativeStackNavigator()
 
@@ -128,6 +130,11 @@ const App = () => {
                 name="plant-list"
                 component={GardenPlantMgmt}
                 options={{ title: "Plant Management" }}
+              />
+              <NavStack.Screen
+                name="blog"
+                component={BlogPage}
+                options={{title: "Blog"}}
               />
               <NavStack.Screen
                 name="account-report"
