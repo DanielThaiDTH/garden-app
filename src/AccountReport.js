@@ -177,18 +177,7 @@ export default AccountReport = ({ navigation, route }) => {
 
             <FlatList data={plantList} renderItem={({item}) =>
              <Text style={styles.plantColor}>{context.getPlantName(item.plantID, context)}</Text>}/> 
-
             </View>
-
-           
-
-
-
-
-
-
-
-
         </View>
     );
 };
