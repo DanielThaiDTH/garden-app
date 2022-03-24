@@ -41,7 +41,7 @@ export default class Blog {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: "Bearer " + token,
+                        'Authorization': "Bearer " + token,
                     },
                     body: JSON.stringify({
                         userID: this.userID,
@@ -86,7 +86,7 @@ export default class Blog {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: "Bearer " + token,
+                        'Authorization': "Bearer " + token,
                     },
                     body: JSON.stringify({
                         userID: userID,
@@ -108,6 +108,12 @@ export default class Blog {
     }
 
 
+    /**
+     * Updates the blog using the data in the current object.
+     * @param {string} token 
+     * @param {callbackFn} errHandle 
+     * @returns 
+     */
     async updateBlog(token, errHandle) {
         if (this.id !== -1) {
             try {
@@ -115,7 +121,7 @@ export default class Blog {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: "Bearer " + token,
+                        'Authorization': "Bearer " + token,
                     },
                     body: JSON.stringify({
                         userID: userID,
@@ -136,6 +142,46 @@ export default class Blog {
         }
 
         return false;
+    }
+
+
+    /**
+     * 
+     * @param {number} rating 
+     * @param {string} token 
+     * @param {number} userID 
+     * @param {callbackFn} errHandle 
+     * @returns 
+     */
+    async addUpdateRating(rating, token, userID, errHandle) {
+        if (this.id !== -1) {
+            try {
+                let res = await fetch(`${API_URL}/blog/rating`, {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                        'Authorization': "Bearer " + token,
+                    },
+                    body: JSON.stringify({
+                        userID: userID,
+                        blogID: this.id,
+                        rating: rating
+                    })
+                });
+
+                //console.log(await res.text());
+
+                if (res.ok) {
+                    return true;
+                } else {
+                    errHandle((await res.json()).error);
+                }
+
+            } catch (err) {
+                console.log(err);
+                errHandle(err.message);
+            }
+        }
     }
 
 
