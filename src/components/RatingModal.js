@@ -32,7 +32,7 @@ export default RatingModal = ({ viewContext, onUpdate }) => {
             temp.push("md-star-outline");
         }
         setStars(temp);
-        console.log(visibleContext);
+        //console.log(visibleContext);
 
         return () => {};
     }, []);

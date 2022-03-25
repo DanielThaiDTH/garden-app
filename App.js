@@ -16,6 +16,7 @@ import GardenMgmt from "./src/GardenMgmt"
 import LoginContext from "./src/context/LoginContext"
 import GardenPlantMgmt from "./src/GardenPlantMgmt"
 import BlogPage from "./src/BlogPage"
+import BlogMaker from "./src/BlogMaker"
 import AccountReport from "./src/AccountReport"
 import { API_URL } from "./src/service/Constants"
 import Blog from "./src/model/Blog"
@@ -140,6 +141,11 @@ const App = () => {
                 name="account-report"
                 component={AccountReport}
                 options={{ title: "Account" }}
+              />
+              <NavStack.Screen
+                name="blog-maker"
+                component={BlogMaker}
+                options={{title: "Make a Blog"}}
               />
             </NavStack.Navigator>
           </NavigationContainer>

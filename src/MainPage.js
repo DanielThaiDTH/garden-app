@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useRef, useLayoutEffect } from 'react';
 import { Constants } from 'expo-constants';
-import { Alert } from 'react-native';
+import { Alert, Touchable, TouchableOpacity } from 'react-native';
 import {
      FlatList, 
      Text, 
@@ -134,10 +134,6 @@ export default MainPage = ({navigation}) => {
         const [filterOn, setFilterOn] = useState(true);
         const [data, setData] = useState(null);
         const [text, setText] = useState('');
-        const [blogQuery, setBlogQuery] = useState('');
-        const [blogResults, setBlogResults] = useState(null);
-        const [blogLoading, setBlogLoading] = useState(false);
-        const [tags, setTags] = useState([]);
         const [err, setErr] = useState('');
         const mountRef = useRef(true);
 
@@ -159,19 +155,6 @@ export default MainPage = ({navigation}) => {
             });
         };
 
-        /**
-         * Searches for a blog
-         * @param {string} text 
-         */
-        let blogSearch = (text) => {
-            setBlogLoading(true);
-            searchBlog(text, tags)
-                .then((res)=>{
-                    setBlogResults(res);
-                })
-                .catch(err => Alert(err.message))
-                .finally(() => setBlogLoading(false));
-        };
 
         if (connectError) {
             return (
@@ -254,38 +237,7 @@ export default MainPage = ({navigation}) => {
                             </Shadow>
                         </View>
                     )}
-                <Text style={styles.searchLabel}>Blog Search</Text>
-                <TextInput
-                    style={styles.searchbar}
-                    placeholder="Enter blog to search for"
-                    onChangeText={text => setBlogQuery(text)}
-                    onSubmitEditing={() => blogSearch(blogQuery)}
-                    defaultValue={blogQuery}
-                />
-                {blogLoading ? <ActivityIndicator size="large" color="#00ff00" /> :
-                    (blogResults && 
-                        <View style={blogResults.length > 0 ? styles.searchContainer : styles.searchContainerEmpty}>
-                            <Shadow offset={[2, 3]} distance={5}>
-                                <View style={styles.searchInterior}>
-                                    <Text style={styles.listHeader}>Search Results</Text>
-                                    <FlatList data={blogResults}
-                                    keyExtractor={item => item.BlogID}
-                                        renderItem={({ item }) =>
-                                            <View style={styles.listItem}>
-                                                <Pressable onPress={() => navigation.push('blog', { id: item.BlogID })}
-                                                    style={({ pressed }) => [{
-                                                        backgroundColor: pressed ? '#d0c0a0' : 'beige',
-                                                        borderRadius: 3,
-                                                        paddingHorizontal: 5
-                                                    }]}>
-                                                    <Text>{item.Title}</Text>
-                                                </Pressable>
-                                            </View>
-                                        } />
-                                </View>
-                            </Shadow>
-                        </View>
-                    )}
+                
                 <LoginModal/>
             </View>
         );
@@ -300,9 +252,81 @@ export default MainPage = ({navigation}) => {
         );
     }
 
-    function BlogScreen()
+    function BlogScreen({navigation})
     {
-        return (<View></View>);
+        const [blogQuery, setBlogQuery] = useState('');
+        const [blogResults, setBlogResults] = useState(null);
+        const [noOfBlogs, setNoOfBlogs] = useState(0);
+        const [blogLoading, setBlogLoading] = useState(false);
+        const [tags, setTags] = useState([]);
+
+        /**
+         * Searches for a blog
+         * @param {string} text 
+         */
+        let blogSearch = (text) => {
+            setBlogLoading(true);
+            searchBlog(text, tags)
+                .then((res) => {
+                    setBlogResults(res);
+                    setNoOfBlogs(res.length);
+                })
+                .catch(err => Alert(err.message))
+                .finally(() => setBlogLoading(false));
+        };
+
+        return (
+        <View style={{flex: 1, padding: 5}}>
+            {context.account &&
+                    <TouchableOpacity onPress={() => navigation.push('blog-maker')}
+                        style={styles.blogButton}>
+                        <Text style={styles.blogButtonText}>
+                            Make a Blog
+                        </Text>
+                    </TouchableOpacity> 
+            }
+                <Text style={styles.searchLabel}>Blog Search</Text>
+                <TextInput
+                    style={styles.searchbar}
+                    placeholder="Enter blog to search for"
+                    onChangeText={text => setBlogQuery(text)}
+                    onSubmitEditing={() => blogSearch(blogQuery)}
+                    defaultValue={blogQuery}
+                />
+                {blogLoading ? <ActivityIndicator size="large" color="#00ff00" /> :
+                    (blogResults &&
+                        <>
+                            <View style={noOfBlogs > 0 ? styles.searchContainer : styles.searchContainerEmpty}>
+                                {noOfBlogs > 0 && 
+                                    <Shadow offset={[2, 3]} distance={5}>
+                                        <View style={styles.searchInterior}>
+                                            <Text style={styles.listHeader}>Search Results</Text>
+                                            <FlatList data={blogResults}
+                                                keyExtractor={item => item.BlogID}
+                                                renderItem={({ item }) =>
+                                                    <View style={styles.listItem}>
+                                                        <Pressable onPress={() => navigation.push('blog', { id: item.BlogID })}
+                                                            style={({ pressed }) => [{
+                                                                backgroundColor: pressed ? '#d0c0a0' : 'beige',
+                                                                borderRadius: 3,
+                                                                paddingHorizontal: 5
+                                                            }]}>
+                                                            <Text>{item.Title}</Text>
+                                                        </Pressable>
+                                                    </View>
+                                                } />
+                                        </View>
+                                    </Shadow>
+                                }
+                            </View>
+                        { noOfBlogs === 0 && 
+                        <Text style={styles.searchNone}>
+                            No blog found with this search query. 
+                        </Text> }
+                        </>
+                    )}
+        </View>
+        );
     }
 
     return (

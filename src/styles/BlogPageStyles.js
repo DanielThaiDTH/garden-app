@@ -21,6 +21,38 @@ export default StyleSheet.create({
     markdown: {
         width: Dimensions.get('window').width*0.8
     },
+    section: {
+        borderWidth: 1, 
+        borderRadius: 10,
+        marginTop: 25,
+        padding: 10,
+        width: '100%', 
+        alignSelf: 'center' 
+    },
+    tagHeader: {
+        fontSize: 20,
+        fontFamily: 'UbuntuBold',
+        marginBottom: 10
+    },
+    tagView: {
+        flexWrap: "wrap",
+        flexDirection: 'row',
+        maxWidth: Dimensions.get('window').width*0.9
+    },
+    tagPill: {
+        borderRadius: 25,
+        fontSize: 18,
+        fontFamily: 'Ubuntu',
+        textAlign: 'center',
+        color: '#aa3080',
+        backgroundColor: '#e5b5d5',
+        borderWidth: 2,
+        borderColor: '#aa3080',
+        paddingHorizontal: 8, 
+        paddingVertical: 3,
+        marginVertical: 5,
+        marginHorizontal: 10
+    },  
     ratingLine: {
         flexDirection: 'row',
     },  

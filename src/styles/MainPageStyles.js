@@ -26,6 +26,7 @@ export default StyleSheet.create({
         flexDirection: 'column',
         margin: 24,
         maxHeight: 0,
+        height: 0,
         alignItems: "center"
     },
     searchInterior: {
@@ -111,5 +112,22 @@ export default StyleSheet.create({
         fontFamily: 'UbuntuBold',
         fontSize: 16,
         color: 'darkblue'
+    },
+    blogButton: {
+        borderWidth: 3,
+        borderRadius: 10,
+        borderColor: 'blue',
+        paddingHorizontal: 15,
+        paddingVertical: 5,
+        marginVertical: 20,
+        width: Dimensions.get('window').width*0.85,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center'
+    },
+    blogButtonText: {
+        fontFamily: 'Ubuntu',
+        fontSize: 25,
+        textAlign: 'center'
     }
 });

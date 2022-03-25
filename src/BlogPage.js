@@ -13,7 +13,7 @@ import BlogPageStyles from './styles/BlogPageStyles';
 const styles = BlogPageStyles;
 
 /**
- * 
+ * A line with a label and content.
  * @param {{label: string, children: *}} params
  * @returns React component
  */
@@ -29,7 +29,7 @@ const RatingLine = ({label, children}) => {
 };
 
 /**
- * 
+ * A row/column of 5 stars.
  * @param {{rating: number}} param0 
  * @returns React component
  */
@@ -61,6 +61,15 @@ const RatingStars = ({rating}) => {
                     return (<Ionicons key={idx} name={filledText} size={20} color={'purple'} style={{ marginHorizontal: 3 }}/>);
             })}
         </>
+    );
+};
+
+
+const TagPill = ({text}) => {
+    return (
+        <Text style={styles.tagPill}>
+            {text}
+        </Text>
     );
 };
 
@@ -139,16 +148,22 @@ export default BlogPage = ({navigation, route}) => {
                 <Markdown style={styles.markdown}>
                     {blogData.markdown}
                 </Markdown>
-                <View style={{borderTopWidth: 1, width: '100%', alignSelf: 'center'}}>
+                <View style={styles.section}>
+                    <Text style={styles.tagHeader}>Tags</Text>
+                    <View style={styles.tagView}>
+                        {blogData.tags.map(t => (<TagPill key={t.id} text={t.name}/>))}
+                    </View>
+                </View>
+                <View style={styles.section}>
                     <RatingLine label={'Average Rating:'}>
                         <RatingStars rating={blogData.rating}/>
                         <Text style={styles.ratingValue}>
-                            {blogData.rating}
+                            {blogData.rating ?? 0}
                         </Text>
                     </RatingLine>
                     <RatingLine label={'Reviews:'}>
                         <Text style={styles.ratingValue}>
-                            {blogData.ratingCount}
+                            {blogData.ratingCount ?? 0}
                         </Text>
                     </RatingLine>
                     {context.account && 

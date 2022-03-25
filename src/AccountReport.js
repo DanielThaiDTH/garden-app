@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         padding: 6,
         margin: 2,
-        marginBottom: 5
+        paddingBottom: 10
 
       },
 
@@ -132,7 +132,7 @@ export default AccountReport = ({ navigation, route }) => {
 
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
 
             <View style={styles.Top}>
                 <Text style={styles.title}>
@@ -157,7 +157,7 @@ export default AccountReport = ({ navigation, route }) => {
 
             <>{
                 context.account.getGardenList().map(g => {return (
-                    <Text style={styles.line}>
+                    <Text key={g} style={styles.line}>
                         {'\n' + "Garden Name: " + g +  '\n'}
                         {"Latitude: " + context.account.getGarden(g).lat+  '\n'}
                         {"Longitude: " + context.account.getGarden(g).lon+  '\n'}
@@ -170,14 +170,21 @@ export default AccountReport = ({ navigation, route }) => {
             }</>
 
 
-            <View>
+            <View style={{marginBottom: 25}}>
                 <Text style={styles.ga}>
                     Plant(s) in Active Garden
                 </Text>
 
-            <FlatList data={plantList} renderItem={({item}) =>
-             <Text style={styles.plantColor}>{context.getPlantName(item.plantID, context)}</Text>}/> 
+             <>
+             {plantList.map(plant => {
+                 return(
+                 <Text style={styles.plantColor}>
+                     {context.getPlantName(plant.plantID, context)}
+                 </Text>
+                 );
+             })}
+             </>
             </View>
-        </View>
+        </ScrollView>
     );
 };
