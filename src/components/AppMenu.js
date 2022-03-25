@@ -60,7 +60,16 @@ export default AppMenu = ({navigation, name}) => {
                                         navigation.push('plant-list');
                                     }}>
                     </MenuOption>
-                    <MenuOption value={3} 
+                    <MenuOption value={3}
+                        text='View Account Report'
+                        disabled={!context.account}
+                        customStyles={{ optionText: styles.option }}
+                        onSelect={() => {
+                            setOpened(false);
+                            navigation.push('account-report');
+                        }}>
+                    </MenuOption>
+                    <MenuOption value={4} 
                                 text={context.account?'Logout':'Login'}
                                 customStyles={{ optionText: styles.option }}
                                 onSelect={() => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
-import { Alert, Modal, Platform, Dimensions, RefreshControl } from 'react-native';
+import { Alert, Modal, Platform, Dimensions } from 'react-native';
 import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput} from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import ModalDropdown from 'react-native-modal-dropdown';
@@ -8,10 +8,6 @@ import AppContext from './context/AppContext';
 import Garden from './model/Garden';
 import Account from './model/Account';
 import Plant from './model/Plant'
-import { API_URL } from './service/Constants';
-import AddPlantModal from './components/AddPlantModal';
-import PlantMgmtListItem from './components/PlantMgmtListItem';
-import GardenPlantMgmtStyles from './styles/GardenPlantMgmtStyles';
 
 //const styles = GardenPlantMgmtStyles;
 
@@ -30,9 +26,10 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold",
         textAlign: 'center',
+        alignItems: 'center',
         flex: 0.23,
         backgroundColor: "beige",
-        borderWidth: 1,
+        borderWidth: 0.5,
         marginBottom: 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
@@ -41,15 +38,12 @@ const styles = StyleSheet.create({
     }, 
     middle: {
         fontSize: 20,
-        fontWeight: "bold",
         textAlign: 'center',
         flex: 0.27,
         backgroundColor: "beige",
         borderWidth: 1,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20
+        borderRadius: 20,
+        paddingVertical: 10
       },
       
       bottom: {
@@ -62,10 +56,13 @@ const styles = StyleSheet.create({
 
       title: {
         textAlign: 'center',
-        marginTop: 25,
+        marginTop: 20,
+        fontFamily: 'Ubuntu',
+        textAlignVertical: 'center',
+        fontSize: 30
       },
       innerTitle: {
-        fontWeight: 'bold',
+        fontFamily: 'UbuntuBold',
         textAlign: 'center'
       },
       ga: {
@@ -78,22 +75,138 @@ const styles = StyleSheet.create({
       },
       line: {
           marginTop: 5,
-        borderBottomColor: 'black',
-        borderBottomWidth: 0.5,
-        borderTopColor: 'black',
-        borderTopWidth: 0.5,
+        // borderBottomColor: 'black',
+        // borderBottomWidth: 0.5,
+        // borderTopColor: 'black',
+        // borderTopWidth: 0.5,
         fontWeight: '200',
-        color: '#F4BB44'
-
+        color: '#F0AA22'
+      },
+      cardHeader: {
+        fontFamily: 'Ubuntu',
+        fontSize: 20,
+          color: '#F0AA22'
       },
       plantColor: {
-          color: '#CC7722'
+          color: '#CC7722',
+          fontSize: 20,
+          marginHorizontal: 10,
+          marginVertical: 5
+      },
+        plantInfoLabel: {
+            color: '#CC7722',
+            fontSize: 16
+        },
+      plantInfo: {
+        fontSize: 16,
+        color: 'black'
+      },
+      plantView: {
+          backgroundColor: '#FFF8F8',
+          borderWidth: 0.5,
+          borderRadius: 15,
+          marginVertical: 5,
+      },
+      plantRowView: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+      },
+      viewPlant: {
+        marginRight: 20
+      },
+      gardenCard: {
+          backgroundColor: 'white',
+          borderRadius: 20,
+          borderWidth: 0.5,
+          marginVertical: 5,
+          padding: 5
+      },
+    dropdown: {
+        borderWidth: 1,
+        borderColor: 'black',
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+        borderRadius: 10,
+        marginTop: 30
+    },
+    dropdownMenu: {
+        marginTop: 0,
+        paddingHorizontal: 10,
+        marginHorizontal: 0
+    },
+    dropdownSelectedText: {
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    dropdownText: {
+        fontSize: 20,
+    }
 
-      }
-
-
-   
 });
+
+
+const GardenCard = ({context, name, idx}) => {
+    const [visible, setVisible] = useState(false);
+    return (
+        <TouchableOpacity key={name + idx}
+            style={styles.gardenCard}
+            onPress={() => {
+                setVisible(!visible);
+            }}>
+            <Text style={styles.cardHeader}>
+                <Text style={{ fontFamily: 'UbuntuBold' }}>Garden Name: </Text>
+                <Text style={{ color: 'black' }}>{name}</Text>
+            </Text>
+            {visible && <Text style={styles.line}>
+                Latitude: &nbsp;
+                <Text style={{color: 'black'}}>
+                    {context.account.getGarden(name).lat}
+                </Text>
+                 {'\n'}
+                Longitude: &nbsp;
+                <Text style={{ color: 'black' }}>
+                    {context.account.getGarden(name).lon}
+                </Text>
+                {'\n'}
+                {/* {context.account.getGarden(g).getPlants(g.plantList) +  '\n'} */}
+                Number of plants in Garden: 
+                <Text style={{ color: 'black' }}>
+                    {context.account.getGarden(name).getPlantCount()}
+                </Text>
+                {'\n'}
+                Plant Hardiness Zone: &nbsp;
+                <Text style={{ color: 'black' }}>
+                    {context.account.getGarden(name).zone}
+                </Text>
+            </Text>}
+        </TouchableOpacity>
+    )
+}
+
+const PlantCard = ({context, plant, nav}) => {
+    return (
+        <View style={styles.plantView}>
+            <View style={styles.plantRowView}>
+                <Text style={styles.plantColor}>
+                    {context.getPlantName(plant.plantID, context)}
+                </Text>
+                <TouchableOpacity style={styles.viewPlant}
+                    onPress={() => nav.push('plant-info', { id: plant.plantID })}>
+                    <Ionicons name={'md-eye'} size={20} color={'grey'}/> 
+                </TouchableOpacity>
+            </View>
+            <Text style={{padding: 10}}>
+                <Text style={styles.plantInfoLabel}>
+                    Plant Date: &nbsp; 
+                </Text>
+                <Text style={styles.plantInfo}>
+                    {plant.plantDate instanceof Date ? plant.plantDate.toLocaleDateString() : "Not planted yet"}
+                </Text>
+            </Text>
+        </View>
+    );
+}
 
 /** Must have a garden with an account */
 export default AccountReport = ({ navigation, route }) => {
@@ -102,24 +215,18 @@ export default AccountReport = ({ navigation, route }) => {
     const [plantList, setPlantList] = useState([]);
     const [gardenIdx, setGardenIdx] = useState(-1);
     const [gardenName, setGardenName] = useState(context.account.activeGarden ?? "" );
+    const [selectedGarden, setSelectedGarden] = useState(context.account.activeGarden ?? "");
     const [accountName, setAccountName] = useState(context.account.name ?? "" );
-    const [gardenCount, setGardenAccount] = useState(context.gardenCount ?? "" );
+    const [gardenCount, setGardenCount] = useState(context.gardenCount ?? "" );
     const [gardenList, setGardenList] = useState(context.getGardenList ?? "" );
-    const [gardenNameSpc, setGardenNameSpc] = useState([]);
 
     useEffect(() => {
         if (context.account) {
             setGardenIdx(context.account.activeGardenIdx);
             setGardenName(context.account.activeGarden);
             setAccountName(context.account.name);
-            setGardenAccount(context.account.gardenCount());
+            setGardenCount(context.account.gardenCount());
             setGardenList(context.account.getGardenList());
-            //setGardenNameSpc(context.account.getGarden(idx));
-
-            
-
-
-
 
             ////////////////////////////////////////////////////
             setPlantList(context.account.getActiveGarden().getPlants());
@@ -131,23 +238,42 @@ export default AccountReport = ({ navigation, route }) => {
     },[context.account]);
 
 
+    const dropdownAdjust = (dropdownStyle) => {
+        dropdownStyle.top -= 30;
+        dropdownStyle.width = Dimensions.get('window').width * 0.8;
+        dropdownStyle.height = Math.min(context.account.getGardenCount() * 50, 200);
+        return dropdownStyle;
+    };
+
     return (
         <ScrollView style={styles.container}>
 
             <View style={styles.Top}>
                 <Text style={styles.title}>
-                  Report for 
+                  Account Report for 
                     <Text style={styles.innerTitle}> {accountName + '\n'}</Text>
                 </Text>
             </View>
             
             <View style={styles.middle}>
-                <Text style={styles.innerTitle} >Account holder: {accountName}</Text>
-                <Text style={styles.innerTitle}>Active Garden: {gardenName}</Text>
-                <Text style={styles.innerTitle}>Number of Garden(s): {gardenCount + '\n'}</Text>
+                <Text style={styles.innerTitle}>Account holder: &nbsp;
+                    <Text style={{color: 'purple'}}>
+                        {accountName}
+                    </Text>
+                </Text>
+                <Text style={styles.innerTitle}>Active Garden: &nbsp;
+                    <Text style={{ color: 'darkgreen' }}>
+                        {gardenName}
+                    </Text>
+                </Text>
+                <Text style={styles.innerTitle}>Number of Garden(s): &nbsp;
+                    <Text style={{color: 'blue'}}>
+                        {gardenCount}
+                    </Text>
+                </Text>
             </View>
 
-            <View>
+            <View style={{ marginTop: 30 }}>
                 <Text style={styles.ga}>
                     Garden(s) in account  
                 </Text>
@@ -156,31 +282,40 @@ export default AccountReport = ({ navigation, route }) => {
 
 
             <>{
-                context.account.getGardenList().map(g => {return (
-                    <Text key={g} style={styles.line}>
-                        {'\n' + "Garden Name: " + g +  '\n'}
-                        {"Latitude: " + context.account.getGarden(g).lat+  '\n'}
-                        {"Longitude: " + context.account.getGarden(g).lon+  '\n'}
-                        {/* {context.account.getGarden(g).getPlants(g.plantList) +  '\n'} */}
-                        {"Number of plants in Garden: " + context.account.getGarden(g).getPlantCount()+  '\n'}
-                        {"Created garden Zone: " + context.account.getGarden(g).zone+  '\n'}
-                    </Text>
-                ) })
+                context.account.getGardenList().map((g, i) => {
+                    return (<GardenCard context={context} name={g} idx={i}/>);
+                     })
             
             }</>
 
 
-            <View style={{marginBottom: 25}}>
+            <ModalDropdown options={context.account.getGardenList()}
+                           defaultIndex={-1}
+                           defaultValue='Please select a garden...'
+                style={styles.dropdown}
+                textStyle={styles.dropdownSelectedText}
+                dropdownTextStyle={styles.dropdownText}
+                dropdownStyle={styles.dropdownMenu}
+                dropdownTextHighlightStyle={styles.dropdownSelectedText}
+                adjustFrame={dropdownAdjust}
+                onSelect={(idx, value) => {
+                    if (idx >= 0) {
+                        setSelectedGarden(value);
+                        setPlantList(context.account.getGardenAt(idx).getPlants());
+                    }
+                }}
+            />
+
+            <View style={{ marginBottom: 25 }}>
                 <Text style={styles.ga}>
-                    Plant(s) in Active Garden
+                    <Ionicons name={'ios-leaf'} color={'green'} size={20} />
+                    Plant(s) in Selected Garden {selectedGarden}
                 </Text>
 
              <>
              {plantList.map(plant => {
                  return(
-                 <Text style={styles.plantColor}>
-                     {context.getPlantName(plant.plantID, context)}
-                 </Text>
+                    <PlantCard context={context} plant={plant} nav={navigation}/>
                  );
              })}
              </>

@@ -2,8 +2,8 @@ import React, { useContext} from 'react';
 import { 
     TouchableOpacity } from 'react-native';
 import { Text, View, StyleSheet } from 'react-native';
-// import { SafeAreaView } from 'react-native-safe-area-context';
-// import * as Location from 'expo-location';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import AppContext from './context/AppContext';
 
 let styles = {};
@@ -19,6 +19,7 @@ export default SettingsPage = ({navigation}) => {
                                       navigation.push('garden-list', { initialAdd: false });
                                   }
                               }}>
+                <Ionicons name={'md-settings-outline'} color={'blue'} size={25} />
                 <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}>Manage Garden</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, context.account && context.account.getGardenCount() ? styles.plantButton : styles.disabledButton]}
@@ -27,6 +28,7 @@ export default SettingsPage = ({navigation}) => {
                                         navigation.push('plant-list');
                                     }
                               }}>
+                <Ionicons name={'ios-leaf'} color={'green'} size={25}/>
                 <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}>Manage Plants</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, context.account && context.account.getGardenCount() ? styles.reportButton : styles.disabledButton]}
@@ -35,6 +37,7 @@ export default SettingsPage = ({navigation}) => {
                                         navigation.push('account-report');
                                     }
                               }}>
+                <Ionicons name={'ios-document'} color={'grey'} size={25} />
                 <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}>Account Report</Text>
             </TouchableOpacity>
         </View>
@@ -54,7 +57,8 @@ styles = StyleSheet.create({
         borderRadius: 15,
         margin: 25,
         padding: 10,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        flexDirection: 'row'
     },
     buttonText: {
         fontFamily: 'UbuntuBold',
