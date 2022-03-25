@@ -16,5 +16,7 @@ export default AppContext = createContext({
     setZone: () => {},
     weatherData: null,
     setWeatherData: () => {},
+    risk: null,
+    setRisk: () => {},
     getPlantName: () => {}
 });

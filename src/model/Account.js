@@ -100,6 +100,10 @@ export default class Account {
         return this.#gardens.map(g => g.name);
     }
 
+    getGardens() {
+        return this.#gardens ?? [];
+    }
+
     getGardenCount() {
         if (this.#gardens)
             return this.#gardens.length;

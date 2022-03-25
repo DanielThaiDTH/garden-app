@@ -36,6 +36,14 @@ const PlantMgmtListItem = ({
         expandCallback();
   };
 
+  const plantIsAtRisk = (type) => {
+      let plant = context.risk.plantRisk.find(pr => pr.id === item.id);
+      if (plant)
+          return plant.risk.some(r => r === type);
+      else
+        return false;
+  }
+
   return (
       <View style={styles.itemShadow}>
         <Shadow offset={[2, 3]}
@@ -45,6 +53,9 @@ const PlantMgmtListItem = ({
             <TouchableOpacity onPress={pressCallback} style={styles.plantItem}>
             <View style={styles.itemMainView}>
                 <View style={[styles.horizontalView, styles.divider]}>
+                {plantIsAtRisk("frost") && <Ionicons name={'ios-snow'} color={"lightblue"} size={18}/>}
+                {plantIsAtRisk("drought") && <Ionicons name={'ios-sunny'} color={"orange"} size={18} />}
+                {plantIsAtRisk("heat") && <Ionicons name={'ios-flame'} color={"red"} size={18} />}
                 <Text
                     style={
                     item.id === selectedID

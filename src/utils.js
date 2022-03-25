@@ -61,3 +61,28 @@ export const filterSearchByZone = (results, plantList, zone) => {
 
     return filtered;
 };
+
+export const calculatePlantRisk = (weather, garden) => {
+    let frostRisk = weather.daily.some(day => day.temp.min < 0);
+    
+    let gardenRisk = { id: garden.id };
+    gardenRisk.plantRisk = [];
+    gardenRisk.risk = [];
+    garden.getPlants().forEach(p => {
+        if (p.plantDate instanceof Date) {
+            let plantRisk = { id: p.id, risk: [] };
+            
+            if (frostRisk)
+                plantRisk.risk.push("frost");
+
+            gardenRisk.plantRisk.push(plantRisk);
+        }
+    });
+
+    if (gardenRisk.plantRisk.some(pr => pr.risk.some(r => r === "frost")))
+        gardenRisk.risk.push("frost");
+    
+
+    console.log(gardenRisk);
+    return gardenRisk;
+}

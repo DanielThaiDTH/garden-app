@@ -129,5 +129,15 @@ export default StyleSheet.create({
         fontFamily: 'Ubuntu',
         fontSize: 25,
         textAlign: 'center'
+    },
+    riskCard: {
+        backgroundColor: 'white',
+        borderRadius: 25,
+        borderWidth: 0.5,
+        padding: 20
+    },
+    riskText: {
+        fontFamily: 'Ubuntu',
+        fontSize: 18
     }
 });

@@ -37,6 +37,7 @@ const App = () => {
   const [zone, setZone] = useState(-1);
   const [weatherData, setWeatherData] = useState(null);
   const [visible, setVisible] = useState(false);
+  const [risk, setRisk] = useState(null);
   const loginContextValue = { visible, setVisible };
   const getPlantName = (id, context) => {
     let found = context.plantInfo.find(pi => pi.UID === id);
@@ -62,9 +63,11 @@ const App = () => {
       setZone,
       weatherData,
       setWeatherData,
+      risk,
+      setRisk,
       getPlantName
     }),
-    [curUsername, token, location, account, plantInfo, zone, weatherData]
+    [curUsername, token, location, account, plantInfo, zone, weatherData, risk]
   )
 
   useEffect(() => {

@@ -23,6 +23,7 @@ import LoginModal from './components/LoginModal';
 import SettingsPage from './SettingsPage';
 import { getCoordinates } from './service/LocationService';
 import { searchPlant, searchBlog } from './service/SearchService';
+import { calculatePlantRisk } from './utils';
 import { API_URL } from './service/Constants';
 import MainPageStyles from './styles/MainPageStyles';
 
@@ -106,6 +107,9 @@ export default MainPage = ({navigation}) => {
                     json.daily.forEach(d => {
                         d['date'] = generateDateObj(d.dt);
                     });
+                    if (context.account) {
+                        context.setRisk(calculatePlantRisk(json, context.account.getActiveGarden()));
+                    }
                     context.setWeatherData(json);
                 }
             }).catch(err => {
@@ -125,6 +129,13 @@ export default MainPage = ({navigation}) => {
             )
         });
     }, [navigation, context.curUsername]);
+
+
+    const calculateRiskTotal = (type, gardenRisk) => {
+        let riskPlants = gardenRisk.plantRisk.filter(pr => pr.risk.some(r => r === type));
+
+        return riskPlants.length;
+    }
 
 
     function HomeScreen()
@@ -237,7 +248,24 @@ export default MainPage = ({navigation}) => {
                             </Shadow>
                         </View>
                     )}
-                
+                {context.risk && 
+                <View style={styles.riskCard}>
+                    <Text style={styles.riskText}>
+                        The total amounts of plants at risk for your garden are: 
+                    </Text>
+                    <Text style={styles.riskText}>
+                        <Ionicons name={'ios-snow'} color={'lightblue'} size={18}/>
+                        {calculateRiskTotal("frost", context.risk)} At risk of frost
+                    </Text>
+                    <Text style={styles.riskText}>
+                        <Ionicons name={'ios-sunny'} color={'orange'} size={18} />
+                        {calculateRiskTotal("drought", context.risk)} At risk of drought
+                    </Text>
+                    <Text style={styles.riskText}>
+                        <Ionicons name={'ios-flame'} color={'red'} size={18} />
+                        {calculateRiskTotal("heat", context.risk)} At risk of heat
+                    </Text>
+                </View>}
                 <LoginModal/>
             </View>
         );
