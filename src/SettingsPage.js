@@ -40,6 +40,7 @@ export default SettingsPage = ({navigation}) => {
                 <Ionicons name={'ios-document'} color={'grey'} size={25} />
                 <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}>Account Report</Text>
             </TouchableOpacity>
+            
         </View>
     );
 };

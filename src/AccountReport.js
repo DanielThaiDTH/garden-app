@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { Alert, Modal, Platform, Dimensions } from 'react-native';
-import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput} from 'react-native';
+import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable} from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import ModalDropdown from 'react-native-modal-dropdown';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -141,13 +141,65 @@ const styles = StyleSheet.create({
     },
     dropdownText: {
         fontSize: 20,
-    }
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+      },
+      modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+      },
+      button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2
+      },
+      buttonOpen: {
+        backgroundColor: "#F194FF",
+      },
+      buttonClose: {
+        backgroundColor: "#2196F3",
+      },
+      textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+      },
+      modalText: {
+        marginBottom: 15,
+        textAlign: "center",
+        color: "blue"
+      },
+      gardenSizeButton: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+
+      }
 
 });
 
 
 const GardenCard = ({context, name, idx}) => {
     const [visible, setVisible] = useState(false);
+
     return (
         <TouchableOpacity key={name + idx}
             style={styles.gardenCard}
@@ -210,6 +262,7 @@ const PlantCard = ({context, plant, nav}) => {
 
 /** Must have a garden with an account */
 export default AccountReport = ({ navigation, route }) => {
+    const [modalVisible, setModalVisible] = useState(false);
     const context = useContext(AppContext);
     const [listRefresh, setListRefresh] = useState(false); //used to force a refresh
     const [plantList, setPlantList] = useState([]);
@@ -219,6 +272,8 @@ export default AccountReport = ({ navigation, route }) => {
     const [accountName, setAccountName] = useState(context.account.name ?? "" );
     const [gardenCount, setGardenCount] = useState(context.gardenCount ?? "" );
     const [gardenList, setGardenList] = useState(context.getGardenList ?? "" );
+
+
 
     useEffect(() => {
         if (context.account) {
@@ -244,6 +299,10 @@ export default AccountReport = ({ navigation, route }) => {
         dropdownStyle.height = Math.min(context.account.getGardenCount() * 50, 200);
         return dropdownStyle;
     };
+
+    const num1 = 0;
+    const num2 = 0;
+
 
     return (
         <ScrollView style={styles.container}>
@@ -272,6 +331,46 @@ export default AccountReport = ({ navigation, route }) => {
                     </Text>
                 </Text>
             </View>
+
+            {/* break  */}
+
+
+    <View style={styles.centeredView}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Enter Dimensions of Garden</Text>
+            <TextInput style={{borderWidth: 1, margin:10}} placeholder="Length" onChangeText={Num1=> this.setState({Num1})}/>
+            <TextInput style={{borderWidth: 1, margin:10}} placeholder="Width" onChangeText={Num1=> this.setState({Num1})}/>
+            {/* add on press to calculate sum, need constructor? create alert to display number returned */}
+            <Button style={styles.gardenSizeButton} title='Check Garden Size'/> 
+
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => setModalVisible(!modalVisible)}
+            >
+              <Text style={styles.textStyle}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+      <Pressable
+        style={[styles.button, styles.buttonOpen]}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.textStyle}>Check Dimensions of Garden</Text>
+      </Pressable>
+    </View>
+
+
+
 
             <View style={{ marginTop: 30 }}>
                 <Text style={styles.ga}>
@@ -320,6 +419,7 @@ export default AccountReport = ({ navigation, route }) => {
              })}
              </>
             </View>
+
         </ScrollView>
     );
 };
