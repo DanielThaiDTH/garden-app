@@ -59,7 +59,7 @@ export default StyleSheet.create({
     },
     searchLabel: {
         fontFamily: 'UbuntuBold',
-        fontSize: 22,
+        fontSize: 25,
     },
     searchbar: {
         margin: 5,
@@ -129,6 +129,29 @@ export default StyleSheet.create({
         fontFamily: 'Ubuntu',
         fontSize: 25,
         textAlign: 'center'
+    },
+    blogListHeader: {
+        fontFamily: 'UbuntuBold',
+        fontSize: 25,
+        marginVertical: 15
+    },
+    blogItem: {
+        borderWidth: 1,
+        borderRadius: 20,
+        backgroundColor: 'white'
+    },
+    blogItemButton: {
+        margin: 15
+    },
+    blogItemTitle: {
+        fontFamily: 'UbuntuBold',
+        fontSize: 20,
+        color: '#306040'
+    },
+    blogItemDate: {
+        fontFamily: 'Ubuntu',
+        fontSize: 16,
+        color: 'grey'
     },
     riskCard: {
         backgroundColor: 'white',

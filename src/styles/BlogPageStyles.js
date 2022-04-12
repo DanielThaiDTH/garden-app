@@ -73,6 +73,13 @@ export default StyleSheet.create({
         margin: 5,
         justifyContent: 'center'
     },
+    deleteButton: {
+        borderRadius: 15,
+        borderWidth: 3,
+        borderColor: 'red',
+        margin: 5,
+        justifyContent: 'center'
+    },
     ratingText: {
         textAlign: 'center',
         fontFamily: 'Ubuntu',

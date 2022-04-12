@@ -62,6 +62,12 @@ export const filterSearchByZone = (results, plantList, zone) => {
     return filtered;
 };
 
+/**
+ * Calculates the risks for all gardens/
+ * @param {*} weather 
+ * @param {*} garden 
+ * @returns 
+ */
 export const calculatePlantRisk = (weather, garden) => {
     let frostRisk = weather.daily.some(day => day.temp.min < 0);
     
@@ -85,4 +91,11 @@ export const calculatePlantRisk = (weather, garden) => {
 
     console.log(gardenRisk);
     return gardenRisk;
+}
+
+export const canvasLine = function(x1, y1, x2, y2, ctx) {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
 }

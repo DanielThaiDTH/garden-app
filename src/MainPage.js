@@ -111,6 +111,7 @@ export default MainPage = ({navigation}) => {
                         context.setRisk(calculatePlantRisk(json, context.account.getActiveGarden()));
                     }
                     context.setWeatherData(json);
+                    //console.log(json);
                 }
             }).catch(err => {
                 console.log(err);
@@ -225,7 +226,7 @@ export default MainPage = ({navigation}) => {
                 }
                 {!isLoading && data && data.length == 0 && <Text style={styles.searchNone}>No Results Found</Text>}
                 {isLoading ? <ActivityIndicator size="large" color="#00ff00" /> :
-                    (data && 
+                    (data && data.length > 0 &&
                         <View style={data.length > 0 ? styles.searchContainer : styles.searchContainerEmpty}>
                             <Shadow offset={[2, 3]} distance={5}>
                                 <View style={styles.searchInterior}>
@@ -287,6 +288,27 @@ export default MainPage = ({navigation}) => {
         const [noOfBlogs, setNoOfBlogs] = useState(0);
         const [blogLoading, setBlogLoading] = useState(false);
         const [tags, setTags] = useState([]);
+        const [myBlogs, setMyBlogs] = useState([]);
+
+        useEffect(() => {
+            if ((myBlogs && (myBlogs instanceof Array) && myBlogs.length > 0) || !context || !context.account)
+                return;
+
+            
+            fetch(`${API_URL}/blog/all/${context.account.id}`)
+            .then(async (res) => {
+                if (res.ok) {
+                    let blogs = await res.json();
+                    blogs.forEach(b => b.date = new Date(b.date));
+                    setMyBlogs(blogs);
+                } else {
+                    Alert.alert((await res.json()).error);
+                }
+            }).catch(err => Alert.alert(err.message));
+
+            return () => {
+            }
+        }, []);
 
         /**
          * Searches for a blog
@@ -353,6 +375,17 @@ export default MainPage = ({navigation}) => {
                         </Text> }
                         </>
                     )}
+                {context.account && <Text style={styles.blogListHeader}>My Blogs</Text>}
+                <FlatList data={myBlogs}
+                        keyExtractor={blog => blog.id}
+                        renderItem={({item}) => 
+                            <View style={styles.blogItem}>
+                                <Pressable style={styles.blogItemButton}>
+                                    <Text style={styles.blogItemTitle}>{item.title}</Text>
+                                    <Text style={styles.blogItemDate}>{item.date.toLocaleDateString()}</Text>
+                                </Pressable>
+                            </View>
+                        }/>
         </View>
         );
     }
@@ -383,7 +416,7 @@ export default MainPage = ({navigation}) => {
           <Tab.Screen name="Home" component={HomeScreen} options={{title: "Welcome To Oracle"}} />
           <Tab.Screen name="forecast" component={Forecast} options={{title: "7-day Forecast"}} />
           <Tab.Screen name="Settings" component={SettingsPage} options={{title: "Settings"}}/>
-          <Tab.Screen name="Blog" component={BlogScreen} options={{title: "Blog"}}/>
+          <Tab.Screen name="Blog" component={BlogScreen} options={{title: "Garden Blogs"}}/>
         </Tab.Navigator>
        
     );

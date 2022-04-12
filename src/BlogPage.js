@@ -100,7 +100,10 @@ export default BlogPage = ({navigation, route}) => {
             //console.log(blog);
             setBlogData(blog);
         })
-        .catch((err) => Alert.alert(err.message));
+        .catch((err) => { 
+            Alert.alert(err.message);
+            navigation.pop();
+        });
 
         if (!context.account)
             return;
@@ -138,6 +141,18 @@ export default BlogPage = ({navigation, route}) => {
                 setRating(newRating);
             });
     };
+
+    const deleteBlog = () => {
+        Blog.deleteBlog(context.token, context.account.id, blogData.id, (msg) => {Alert.alert(msg)})
+        .then((status) => {
+            if (status) {
+                Alert.alert("Blog deleted");
+                navigation.pop();
+            } else {
+                Alert.alert("The blog could not be deleted");
+            }
+        });
+    }
 
 
     return (
@@ -184,6 +199,12 @@ export default BlogPage = ({navigation, route}) => {
                                               onPress={() => setVisible(true)}>
                             <Text style={styles.ratingText}>Add Rating</Text>
                         </TouchableOpacity>
+                        }
+                        {context.account.id === blogData.userID && 
+                                <TouchableOpacity style={styles.deleteButton}
+                                    onPress={deleteBlog}>
+                                    <Text style={styles.ratingText}>Delete Blog</Text>
+                                </TouchableOpacity>
                         }
                     </>
                     }
