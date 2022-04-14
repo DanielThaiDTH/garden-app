@@ -15,7 +15,8 @@ export default StyleSheet.create({
         color: 'grey',
         borderBottomColor: 'black',
         borderBottomWidth: 2,
-        textAlign: 'center'
+        textAlign: 'center',
+        paddingBottom: 10
     },
     itemShadow: {
         width: Dimensions.get('window').width*0.9,
@@ -77,6 +78,13 @@ export default StyleSheet.create({
     infoText: {
         fontFamily: 'Ubuntu',
         fontSize: 20
+    },
+    dimensionsHeader: {
+        fontFamily: 'UbuntuBold',
+        textAlign: 'center',
+        fontSize: 20,
+        marginTop: 20,
+        marginBottom: 10
     },
     dropdown: {
         borderWidth: 1,

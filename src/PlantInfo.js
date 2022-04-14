@@ -29,7 +29,6 @@ export default PlantInfo = ({route, navigation}) => {
     const [gardenIdx, setGardenIdx] = useState(-1);
     const [isWatched, setIsWatched] = useState(false);
     const [isPlanted, setIsPlanted] = useState(false);
-    const cv = useRef((canvas) => { console.log("Helloe"); console.log(canvas.current + " canvas ref"); });
     const context = useContext(AppContext);
     const { id } = route.params; 
 

@@ -4,6 +4,7 @@ import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput 
 import { TouchableOpacity } from 'react-native';
 import ModalDropdown from 'react-native-modal-dropdown';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Canvas from 'react-native-canvas';
 
 import AppContext from './context/AppContext';
 import Garden from './model/Garden';
@@ -13,6 +14,7 @@ import { API_URL } from './service/Constants';
 import AddPlantModal from './components/AddPlantModal';
 import PlantMgmtListItem from './components/PlantMgmtListItem';
 import GardenPlantMgmtStyles from './styles/GardenPlantMgmtStyles';
+import { canvasLine } from './utils';
 
 const styles = GardenPlantMgmtStyles;
 
@@ -22,7 +24,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
     const [listRefresh, setListRefresh] = useState(false); //used to force a refresh
     const [plantList, setPlantList] = useState([]);
     const [selectedID, setSelectedID] = useState(-1); //selected plant id
-    const [gardenIdx, setGardenIdx] = useState(-1);
+    const [gardenIdx, setGardenIdx] = useState(context.account.activeGardenIdx ?? -1);
     const [gardenName, setGardenName] = useState(context.account.activeGarden ?? "" );
     const [addModalVisible, setAddModalVisible] = useState(false);
 
@@ -87,6 +89,52 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
         return dropdownStyle;
     };
 
+    const handleCanvas = (canvas) => {
+        if (!canvas) {
+            console.log('Canvas not loaded');
+            return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        canvas.width = Dimensions.get('window').width * 0.8;
+        canvas.height = Dimensions.get('window').height * 0.3;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = '#dd09dd';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 140);
+
+        ctx.strokeStyle = '#000';
+        ctx.fillStyle = '#000';
+        ctx.lineWidth = 1;
+        canvasLine(50, 40, canvas.width - 50, 40, ctx);
+        canvasLine(40, 50, 40, canvas.height - 90, ctx);
+        canvasLine(50, 30, 50, 50, ctx);
+        canvasLine(canvas.width - 50, 30, canvas.width - 50, 50, ctx);
+        canvasLine(30, 50, 50, 50, ctx);
+        canvasLine(30, canvas.height - 90, 50, canvas.height - 90, ctx)
+
+        let widthText, lengthText;
+        console.log(context.account.getActiveGarden());
+        if (gardenIdx > 0) {
+            widthText = `${context.account.getGardenAt(gardenIdx).width}''`;
+            lengthText = `${context.account.getGardenAt(gardenIdx).length } ''`;
+        } else if (gardenIdx == 0) {
+            widthText = `${context.account.getGardenAt(0).width}''`;
+            lengthText = `${context.account.getGardenAt(0).length}''`;
+        } else {
+            widthText = `${context.account.getActiveGarden().width}''`;
+            lengthText = `${context.account.getActiveGarden().length}''`;
+        }
+
+        ctx.font = '18px san-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(widthText, canvas.width / 2, 25);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(lengthText, -13*canvas.height/32, 25);
+        ctx.rotate(Math.PI / 2);
+    };
+
     return (
         <View style={styles.container}>
             <FlatList data={plantList}
@@ -113,6 +161,10 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                                                 }
                                                 setListRefresh(!listRefresh);
                                             }}/>
+                              <View>
+                                <Text style={styles.dimensionsHeader}>Garden Dimensions</Text>
+                                <Canvas ref={handleCanvas}/>
+                              </View>
                           </View>
                           }
                       keyExtractor={item => item.id}

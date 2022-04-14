@@ -10,6 +10,8 @@ export default class Garden {
     name;
     #plants = [];
     watched = [];
+    width;
+    length;
 
     constructor(gardenObj) {
         if (!gardenObj) gardenObj = {};
@@ -19,6 +21,8 @@ export default class Garden {
         this.zone = gardenObj.zone ?? -1;
         this.name = gardenObj.name;
         this.createdAt = gardenObj.createdAt;
+        this.width = gardenObj.width;
+        this.length = gardenObj.length;
 
         if (Array.isArray(gardenObj.plants))
             this.#plants = gardenObj.plants.map(p => new Plant(p));
@@ -40,7 +44,12 @@ export default class Garden {
                     let res = await fetch(API_URL + "/plant/" + plant.plantID, {
                         method: "POST",
                         headers: { 'Content-Type': "application/json", 'Authorization': 'Bearer ' + token },
-                        body: JSON.stringify({ gardenID: this.id, userID: userID, date: plant.plantDate })
+                        body: JSON.stringify({ 
+                            gardenID: this.id, 
+                            userID: userID, 
+                            date: plant.plantDate, 
+                            widthOffset: plant.widthOffset ?? 0, 
+                            lengthOffset: plant.lengthOffset ?? 0})
                     });
                     if (res.ok) {
                         let newPlants = (await res.json()).updatedPlants;
@@ -199,6 +208,34 @@ export default class Garden {
 
         if (plant) {
             plant.plantDate = date;
+        }
+    }
+
+    async updateDimensions(token, userID, width, length) {
+        try {
+            let res = await fetch(`${API_URL}/garden/${this.id}`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({
+                    userID: userID,
+                    width: width,
+                    length: length
+                })
+            });
+
+            if (res.ok) {
+                this.width = width;
+                this.length = length;
+                return true;
+            } else {
+                console.log("Unable to garden dimensions");
+                console.log((await res.json()).error);
+                return false;
+            }
+        } catch(err) {
+            console.log("Could not update dimensions due to connection issue");
+            console.log(err.message);
+            return false;
         }
     }
 }
