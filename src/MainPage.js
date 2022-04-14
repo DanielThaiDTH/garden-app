@@ -26,6 +26,7 @@ import { searchPlant, searchBlog } from './service/SearchService';
 import { calculatePlantRisk } from './utils';
 import { API_URL } from './service/Constants';
 import MainPageStyles from './styles/MainPageStyles';
+import { calculatePrecipWater } from './service/WateringService';
 
 
 let MainPage;
@@ -108,6 +109,7 @@ export default MainPage = ({navigation}) => {
                         d['date'] = generateDateObj(d.dt);
                     });
                     if (context.account) {
+                        calculatePrecipWater(context.account.getActiveGarden(), context);
                         context.setRisk(calculatePlantRisk(json, context.account.getActiveGarden()));
                     }
                     context.setWeatherData(json);

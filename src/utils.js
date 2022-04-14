@@ -63,13 +63,15 @@ export const filterSearchByZone = (results, plantList, zone) => {
 };
 
 /**
- * Calculates the risks for all gardens/
+ * Calculates the risks for all gardens. T < 0C = frost, T > 35C = heat,
+ * required water greater than 0.2in, drought
  * @param {*} weather 
  * @param {*} garden 
  * @returns 
  */
 export const calculatePlantRisk = (weather, garden) => {
     let frostRisk = weather.daily.some(day => day.temp.min < 0);
+    let heatRisk = weather.daily.some(day => day.temp.max > 35);
     
     let gardenRisk = { id: garden.id };
     gardenRisk.plantRisk = [];
@@ -81,15 +83,26 @@ export const calculatePlantRisk = (weather, garden) => {
             if (frostRisk)
                 plantRisk.risk.push("frost");
 
+            if (heatRisk)
+                plantRisk.risk.push("heat");
+
+            if (p.waterDeficit > 1/5)
+                plantRisk.risk.push("drought");
+
             gardenRisk.plantRisk.push(plantRisk);
         }
     });
 
     if (gardenRisk.plantRisk.some(pr => pr.risk.some(r => r === "frost")))
         gardenRisk.risk.push("frost");
-    
 
-    console.log(gardenRisk);
+    if (gardenRisk.plantRisk.some(pr => pr.risk.some(r => r === "drought")))
+        gardenRisk.risk.push("drought");
+    
+    if (gardenRisk.plantRisk.some(pr => pr.risk.some(r => r === "heat")))
+        gardenRisk.risk.push("heat");
+
+    //console.log(gardenRisk);
     return gardenRisk;
 }
 

@@ -47,6 +47,11 @@ export default StyleSheet.create({
         margin: 0,
         padding: 0
     },
+    iconView: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+    },
     horizontalView: {
         display: 'flex',
         flexDirection: 'row',
@@ -62,14 +67,19 @@ export default StyleSheet.create({
     },  
     plantButton: {
         backgroundColor: 'green',
-        padding: 10
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        marginVertical: 5 ,
+        marginHorizontal: 30
     },
     plantButtonText: {
         color: 'white',
-        fontSize: 20
+        fontSize: 20,
+        textAlign: 'center'
     },
     infoButton: {
-        padding: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
         alignContent: 'center',
         flex: 0,
         flexDirection: 'row',
@@ -78,6 +88,25 @@ export default StyleSheet.create({
     infoText: {
         fontFamily: 'Ubuntu',
         fontSize: 20
+    },
+    waterInfo: {
+        fontFamily: 'Ubuntu',
+        textAlign: 'center',
+        marginVertical: 10
+    },
+    waterInput: {
+        borderRadius: 5,
+        borderWidth: 1,
+        paddingHorizontal: 5
+    },
+    waterButton: {
+        backgroundColor: 'blue',
+        paddingHorizontal: 5,
+        paddingVertical: 2
+    },
+    waterButtonText: {
+        color: 'white',
+        fontSize: 18
     },
     dimensionsHeader: {
         fontFamily: 'UbuntuBold',

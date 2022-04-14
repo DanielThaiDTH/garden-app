@@ -144,7 +144,7 @@ export default GardenMgmt = ({navigation, route}) => {
                       keyExtractor={item => item}
                       renderItem={({item}) =>(
                           <TouchableOpacity onPress={() => {
-                                                    context.account.activeGarden = item;
+                                                    context.account.setActiveGarden(item);
                                                     context.setZone(-1);
                                                     context.setLocation(null);
                                             }}            

@@ -22,7 +22,7 @@ const styles = GardenPlantMgmtStyles;
 export default GardenPlantMgmt = ({ navigation, route }) => {
     const context = useContext(AppContext);
     const [listRefresh, setListRefresh] = useState(false); //used to force a refresh
-    const [plantList, setPlantList] = useState([]);
+    const [plantList, setPlantList] = useState(context.account.getActiveGarden().getPlants() ?? []);
     const [selectedID, setSelectedID] = useState(-1); //selected plant id
     const [gardenIdx, setGardenIdx] = useState(context.account.activeGardenIdx ?? -1);
     const [gardenName, setGardenName] = useState(context.account.activeGarden ?? "" );
@@ -115,7 +115,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
         canvasLine(30, canvas.height - 90, 50, canvas.height - 90, ctx)
 
         let widthText, lengthText;
-        console.log(context.account.getActiveGarden());
+        console.log(gardenIdx);
         if (gardenIdx > 0) {
             widthText = `${context.account.getGardenAt(gardenIdx).width}''`;
             lengthText = `${context.account.getGardenAt(gardenIdx).length } ''`;
@@ -145,7 +145,6 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                                   Plants in your {'\n' + gardenName + '\n'}garden
                               </Text>
                               <ModalDropdown options={context.account.getGardenList()}
-                                             defaultIndex={gardenIdx}
                                              defaultValue={gardenName} 
                                              style={styles.dropdown}
                                              textStyle={styles.dropdownSelectedText}
@@ -173,7 +172,14 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                                              selectedID={selectedID}
                                              pressCallback={() => setSelectedID(item.id) }
                                              infoCallback={() => navigation.push('plant-info', { id: item.plantID })}
-                                             plantDateCallback={() => updatePlantingDate(item.id)}/>
+                                             plantDateCallback={() => updatePlantingDate(item.id)}
+                                             waterCallback={(water) => {
+                                                 item.waterDeficit -= water;
+                                                 if (gardenIdx+1 != -1)
+                                                    item.updateWaterDeficit(context.token, context.account.getGardenAt(gardenIdx+1).id);
+                                                 else
+                                                    item.updateWaterDeficit(context.token, context.account.getActiveGarden().id);
+                                             }}/>
                       )}
                       >
             </FlatList>

@@ -29,6 +29,16 @@ export default class Plant {
             this.count = plantObj.count ?? 0;
             this.widthOffset = plantObj.widthOffset;
             this.lengthOffset = plantObj.lengthOffset;
+            if (typeof plantObj.lastCheck === 'string')
+                this.lastCheck = new Date(plantObj.lastCheck)
+            else if (plantObj.lastCheck instanceof Date)
+                this.lastCheck = plantObj.lastCheck;
+            else
+                this.lastCheck = null;
+            this.lastCheck = plantObj.lastCheck ? new Date(plantObj.lastCheck) : new Date(0);
+            this.waterDeficit = plantObj.waterDeficit ? parseFloat(plantObj.waterDeficit) : 0;
+            console.log("# " + this.id + " deficit is " + this.waterDeficit);
+
         } else {
             this.id = -1;
             this.plantID = -1;
@@ -36,6 +46,8 @@ export default class Plant {
             this.count = 0;
             this.widthOffset = 0;
             this.lengthOffset = 0;
+            this.lastCheck = new Date(0);
+            this.waterDeficit = 0;
         }
     }
 
@@ -49,6 +61,8 @@ export default class Plant {
     
         if (speciesID) plant.plantID = speciesID;
         plant.plantDate = plantingDate;
+        plant.waterDeficit = 0;
+        plant.lastCheck = new Date(0);
         
         return plant
     }
@@ -78,6 +92,33 @@ export default class Plant {
             console.log("Could not update offsets due to connection issue");
             console.log(err.message);
             return false;
+        }
+    }
+
+    async updateWaterDeficit(token, gardenID) {
+        console.log("Garden ID of " + gardenID);
+        try {
+            let res = await fetch(`${API_URL}/plant/water/${this.id}`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    gardenID: gardenID,
+                    water: this.waterDeficit,
+                    updateDate: new Date()
+                })
+            });
+            if (res.ok) {
+                console.log(this.id + " watering updated");
+            } else {
+                console.log("Could not update");
+                console.log((await res.json()).error);
+            }
+        } catch(err) {
+            console.log("Could not water due to connection issue");
+            console.log(err.message);
         }
     }
 }
