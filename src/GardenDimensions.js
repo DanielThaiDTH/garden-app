@@ -52,6 +52,7 @@ export default class GardenDimensions extends Component
     {
         super(props);
         this.state = {Num1: 0, Num2: 0};
+        
     }
 
     showBadAlert = () =>{
