@@ -20,7 +20,7 @@ export default SettingsPage = ({navigation}) => {
                                   }
                               }}>
                 <Ionicons name={'md-settings-outline'} color={'blue'} size={25} />
-                <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}>Manage Garden</Text>
+                <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}> Manage Garden</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, context.account && context.account.getGardenCount() ? styles.plantButton : styles.disabledButton]}
                               onPress={() => {
@@ -29,7 +29,7 @@ export default SettingsPage = ({navigation}) => {
                                     }
                               }}>
                 <Ionicons name={'ios-leaf'} color={'green'} size={25}/>
-                <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}>Manage Plants</Text>
+                <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}> Manage Plants</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, context.account && context.account.getGardenCount() ? styles.reportButton : styles.disabledButton]}
                               onPress={() => {
@@ -37,8 +37,19 @@ export default SettingsPage = ({navigation}) => {
                                         navigation.push('account-report');
                                     }
                               }}>
+            
                 <Ionicons name={'ios-document'} color={'grey'} size={25} />
-                <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}>Account Report</Text>
+                <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}> Account Report</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.button, context.account && context.account.getGardenCount() ? styles.dimensionButton : styles.disabledButton]}
+                              onPress={() => {
+                                    if (context.account && context.account.getGardenCount()) {
+                                        navigation.push('garden-dimension');
+                                    }
+                              }}>
+            
+                <Ionicons name={'ios-construct'} color={'#F08080'} size={25} />
+                <Text style={context.account ? styles.buttonText : styles.buttonTextDisabled}> Garden Dimensions</Text>
             </TouchableOpacity>
             
         </View>
@@ -79,6 +90,9 @@ styles = StyleSheet.create({
     },
     reportButton: {
         borderColor: 'red'
+    },
+    dimensionButton: {
+        borderColor: '#E97451'
     },
     disabledButton: {
         borderColor: 'darkgrey'

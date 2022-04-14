@@ -20,6 +20,7 @@ import BlogMaker from "./src/BlogMaker"
 import AccountReport from "./src/AccountReport"
 import { API_URL } from "./src/service/Constants"
 import Blog from "./src/model/Blog"
+import GardenDimensions from "./src/GardenDimensions"
 
 const NavStack = createNativeStackNavigator()
 
@@ -150,6 +151,12 @@ const App = () => {
                 component={BlogMaker}
                 options={{title: "Make a Blog"}}
               />
+              <NavStack.Screen
+                name="garden-dimension"
+                component={GardenDimensions}
+                options={{title: "Dimensions"}}
+              />
+              
             </NavStack.Navigator>
           </NavigationContainer>
         </MenuProvider>

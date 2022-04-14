@@ -259,7 +259,7 @@ export default MainPage = ({navigation}) => {
                         {calculateRiskTotal("frost", context.risk)} At risk of frost
                     </Text>
                     <Text style={styles.riskText}>
-                        <Ionicons name={'ios-sunny'} color={'orange'} size={18} />
+                        <Ionicons name={'ios-sunny'} color={'#FDDA0D'} size={18} />
                         {calculateRiskTotal("drought", context.risk)} At risk of drought
                     </Text>
                     <Text style={styles.riskText}>
@@ -267,6 +267,30 @@ export default MainPage = ({navigation}) => {
                         {calculateRiskTotal("heat", context.risk)} At risk of heat
                     </Text>
                 </View>}
+
+                <View style={styles.riskCard}>
+                
+                    <Text style={styles.riskText}>
+                    Tips for Watering your Plants
+                            <Ionicons name={'ios-alert'} color={'red'} size={18}/>  
+                    </Text>
+                
+                    <Text style={styles.riskText}>
+                        <Ionicons name={'ios-water'} color={'#89CFF0'} size={18}/>
+                            Water The Roots
+                    </Text>
+                        
+                    <Text style={styles.riskText}>
+                        <Ionicons name={'ios-checkmark'} color={'#0047AB'} size={18}/>
+                        Check Soil Before Watering
+                    </Text>
+                    
+                    <Text style={styles.riskText}>
+                        <Ionicons name={'ios-sunny'} color={'#FDDA0D'} size={18}/>
+                        Water In The Morning
+                    </Text>
+                
+                </View>
                 <LoginModal/>
             </View>
         );

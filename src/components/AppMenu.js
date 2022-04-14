@@ -80,7 +80,17 @@ export default AppMenu = ({navigation, name}) => {
                                     }
                                     setOpened(false);
                                 }}/>
+                    
                 </MenuOptions>
+                {/* <MenuOption value={5}
+                        text=''
+                        disabled={!context.account}
+                        customStyles={{ optionText: styles.option }}
+                        onSelect={() => {
+                            setOpened(false);
+                            navigation.push('garden-dimension');
+                        }}>
+                    </MenuOption> */}
             </Menu>
     );
 };

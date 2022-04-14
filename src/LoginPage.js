@@ -55,7 +55,7 @@ export default ({ navigation }) => {
                         context.setCurUsername(r.username);
                         //context.account.name = r.username;
                         context.setToken(r.id_token);
-                        Alert.alert("Success", "Logging in as " + r.username, [{ text: "OK" }]);
+                        Alert.alert("Welcome " + r.username, "Don't forget to check and update your water cycle!", [{ text: "OK" }]);
 
                         accessAccount(r.id_token)
                             .then(acc => {

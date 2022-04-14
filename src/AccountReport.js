@@ -197,6 +197,7 @@ const styles = StyleSheet.create({
 });
 
 
+
 const GardenCard = ({context, name, idx}) => {
     const [visible, setVisible] = useState(false);
 
@@ -262,6 +263,8 @@ const PlantCard = ({context, plant, nav}) => {
 
 /** Must have a garden with an account */
 export default AccountReport = ({ navigation, route }) => {
+
+
     const [modalVisible, setModalVisible] = useState(false);
     const context = useContext(AppContext);
     const [listRefresh, setListRefresh] = useState(false); //used to force a refresh
@@ -300,8 +303,21 @@ export default AccountReport = ({ navigation, route }) => {
         return dropdownStyle;
     };
 
-    const num1 = 0;
-    const num2 = 0;
+    const checkDimension = () =>
+    {
+      Alert.alert(
+        "Dimensions Sucess",
+        "Garden Dimnesions: Looks Good! ",
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Dimensions button checked!"),
+            style: 'cancel'
+          }
+        ]
+      )
+    }
+
 
 
     return (
@@ -333,45 +349,6 @@ export default AccountReport = ({ navigation, route }) => {
             </View>
 
             {/* break  */}
-
-
-    <View style={styles.centeredView}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(!modalVisible);
-        }}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Enter Dimensions of Garden</Text>
-            <TextInput style={{borderWidth: 1, margin:10}} placeholder="Length" onChangeText={Num1=> this.setState({Num1})}/>
-            <TextInput style={{borderWidth: 1, margin:10}} placeholder="Width" onChangeText={Num1=> this.setState({Num1})}/>
-            {/* add on press to calculate sum, need constructor? create alert to display number returned */}
-            <Button style={styles.gardenSizeButton} title='Check Garden Size'/> 
-
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}
-            >
-              <Text style={styles.textStyle}>Close</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-      <Pressable
-        style={[styles.button, styles.buttonOpen]}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={styles.textStyle}>Check Dimensions of Garden</Text>
-      </Pressable>
-    </View>
-
-
-
-
             <View style={{ marginTop: 30 }}>
                 <Text style={styles.ga}>
                     Garden(s) in account  
