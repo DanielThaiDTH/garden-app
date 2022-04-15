@@ -83,7 +83,8 @@ export default StyleSheet.create({
         alignContent: 'center',
         flex: 0,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        alignSelf: 'center'
     },
     infoText: {
         fontFamily: 'Ubuntu',

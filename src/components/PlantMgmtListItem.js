@@ -118,6 +118,7 @@ const PlantMgmtListItem = ({
                             <Text style={styles.waterButtonText}>Water Plant</Text>
                         </TouchableOpacity>
                     </View>
+
                     </>
                 )}
             </View>

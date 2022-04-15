@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef, Component } from 'react';
+import React, { useEffect, useState, useContext, useRef, Component, useCallback } from 'react';
 import { Alert, Modal, Platform, Dimensions } from 'react-native';
 import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput, Pressable} from 'react-native';
 import { TouchableOpacity } from 'react-native';
@@ -7,7 +7,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import AppContext from './context/AppContext';
 import Garden from './model/Garden';
 import Account from './model/Account';
-import Plant from './model/Plant'
+import Plant from './model/Plant';
+import DimensionModal from './components/DimensionModal';
 
 const styles = StyleSheet.create({
     container: {
@@ -18,6 +19,10 @@ const styles = StyleSheet.create({
         margin: 2,
         paddingBottom: 10
 
+      },
+      input: {
+        paddingHorizontal: 10,
+        borderWidth: 1
       },
       text1: {
           fontSize: 20,
@@ -41,21 +46,66 @@ const styles = StyleSheet.create({
       },
       buttonStyle: {
           color: 'red'
+      },
+      listTitle: {
+        fontFamily: 'Ubuntu',
+        fontSize: 25
+      },
+      gardenCard: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignContent: 'space-around',
+        backgroundColor: "white",
+        borderRadius: 20,
+        borderWidth: 1,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        marginVertical: 10
+      },
+      gardenCardHeader: {
+        fontFamily: "UbuntuBold",
+        fontSize: 18
+      },
+      errorMsg: {
+        fontFamily: 'Ubuntu',
+        color: 'darkred'
+      },
+      updateView: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        paddingLeft: 15
+      },
+      updateButton: {
+        borderWidth: 5,
+        borderRadius: 20,
+        borderColor: '#a08730',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        alignSelf: 'center',
+        justifyContent: 'center'
+      },
+      updateText: {
+        fontFamily: 'Ubuntu',
+        fontSize: 18,
       }
 
 });
 
 
-export default class GardenDimensions extends Component
-{
-    constructor(props)
-    {
-        super(props);
-        this.state = {Num1: 0, Num2: 0};
-        
-    }
+export default GardenDimensions  = ({navigation}) => {
+  const context = useContext(AppContext);    
+    const [length, setLength] = useState(0);
+    const [width, setWidth] = useState(0);
+    const [selectedGarden, setSelectedGarden] = useState(null);
+    const [updateDim, setUpdateDim] = useState(() => {});
+    const [modalVisible, setModalVisible] = useState(false);
+    const [gardenList, setGardenList] = useState(context.account.getGardens() ?? []);
+    const [, updateState] = React.useState();
+    const forceUpdate = React.useCallback(() => updateState({}), []);
 
-    showBadAlert = () =>{
+    const showBadAlert = () =>{
         Alert.alert(
             "Dimensions Failure",
             "Garden Dimensions: Please Enter Valid Dimensions ",
@@ -69,7 +119,7 @@ export default class GardenDimensions extends Component
           )
     }
 
-    showAlert = () =>{
+    const showAlert = () =>{
         Alert.alert(
             "Dimensions Sucess",
             "Garden Dimensions: Garden Dimensions Valid ",
@@ -84,7 +134,7 @@ export default class GardenDimensions extends Component
 
     }
 
-    showDimensionsAlert = () =>{
+    const showDimensionsAlert = () =>{
         Alert.alert(
             "Dimensions Low",
             "Garden Dimensions: 10' X 10' Garden is considered when planting for a small garden.",
@@ -98,7 +148,7 @@ export default class GardenDimensions extends Component
           )
     }
 
-    showBigAlert = () =>{
+    const showBigAlert = () =>{
 
         Alert.alert(
             "Dimensions Large",
@@ -115,39 +165,81 @@ export default class GardenDimensions extends Component
     }
 
 
-    Sum = () =>
+    const Sum = () =>
     {
-        var N1 = parseInt(this.state.Num1);
-        var N2 = parseInt(this.state.Num2);
+        var N1 = parseInt(length);
+        var N2 = parseInt(width);
 
         var R = N1 * N2;
 
         if(R <=0){
-            this.showBadAlert();
+            showBadAlert();
             
-        }else if (R < 100) {
-            this.showDimensionsAlert();
-        }else if (R > 800)
+         } else if (R < 100) {
+            showDimensionsAlert();
+        } else if (R > 800)
         {
-            this.showBigAlert();
+            showBigAlert();
         }
         else{
-            this.showAlert();
+            showAlert();
         }
         // alert(R);
-
     }
 
-    render()
-    {
+    const dimCheck = (len, wid) => {
+      let n1 = parseInt(len);
+      let n2 = parseInt(wid);
+
+      let r = n1*n2;
+
+      if (r <= 0) {
+        return (<Text style={styles.errorMsg}>Impossible dimensions</Text>);
+      } else if (r < 100) {
+        return (<Text style={styles.errorMsg}>Garden is too small.</Text>);
+      } else if (r > 800) {
+        return (<Text style={styles.errorMsg}>Garden is too large.</Text>);
+      }
+      else {
+        return (<></>);
+      }
+    }
+    
         return(
             <ScrollView style={styles.container}>
-
+                {context.account && 
+                  <>
+                  <Text style={styles.listTitle}>Your Gardens</Text>
+                    {gardenList.map(g => {
+                      return (
+                        <View key={g.id} style={styles.gardenCard}>
+                          <View>
+                            <Text style={styles.gardenCardHeader}>{g.name}</Text>
+                            <Text><Text style={{fontWeight: 'bold'}}>Width:</Text> {g.width/12}'</Text>
+                            <Text><Text style={{ fontWeight: 'bold' }}>Length:</Text> {g.length/12}'</Text>
+                            {dimCheck(g.length/12, g.width/12)}
+                          </View>
+                          <View style={styles.updateView}>
+                            <TouchableOpacity style={styles.updateButton}
+                                              onPress={()=> {
+                                                setLength(g.length);
+                                                setWidth(g.width);
+                                                setModalVisible(true);
+                                                setSelectedGarden(g);
+                                              }}>
+                              <Text style={styles.updateText}>Change</Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </>
+                }
                 <View >
-                    <TextInput style={{borderWidth: 1,margin: 10}} placeholder=" Enter Length" onChangeText={Num1 => this.setState({Num1})}/>
-                    <TextInput style={{borderWidth: 1,margin: 10}} placeholder=" Enter Width" onChangeText={Num2 => this.setState({Num2})}/>
+                    <TextInput style={styles.input} placeholder=" Enter Length (feet)" onChangeText={len => setLength(length)}/>
+                    <TextInput style={styles.input} placeholder=" Enter Width (feet)" onChangeText={wid => setWidth(wid)}/>
                     <Text></Text>
-                    <Button style={styles.buttonStyle} title='Check Dimensions Of Garden' onPress={this.Sum}/>
+                    <Button style={styles.buttonStyle} title='Check Dimensions Of Garden' onPress={Sum}/>
                 </View>
                 <Text></Text>
                 <View>
@@ -174,9 +266,12 @@ export default class GardenDimensions extends Component
                     source={require('../assets/garden.jpg')}
                     />
                 </View>
-
+                <DimensionModal length={length}
+                                width={width}
+                                visible={modalVisible}
+                                garden={selectedGarden}
+                                complete={() => { setModalVisible(false); setGardenList(context.account.getGardens())}}
+                                cancel={() => { setModalVisible(false);}}/>
             </ScrollView>
-
         )
-    }
 }
