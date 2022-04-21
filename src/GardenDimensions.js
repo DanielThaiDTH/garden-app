@@ -174,7 +174,6 @@ export default GardenDimensions  = ({navigation}) => {
 
         if(R <=0){
             showBadAlert();
-            
          } else if (R < 100) {
             showDimensionsAlert();
         } else if (R > 800)
@@ -236,7 +235,7 @@ export default GardenDimensions  = ({navigation}) => {
                   </>
                 }
                 <View >
-                    <TextInput style={styles.input} placeholder=" Enter Length (feet)" onChangeText={len => setLength(length)}/>
+                    <TextInput style={styles.input} placeholder=" Enter Length (feet)" onChangeText={len => setLength(len)}/>
                     <TextInput style={styles.input} placeholder=" Enter Width (feet)" onChangeText={wid => setWidth(wid)}/>
                     <Text></Text>
                     <Button style={styles.buttonStyle} title='Check Dimensions Of Garden' onPress={Sum}/>

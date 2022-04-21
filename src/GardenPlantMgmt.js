@@ -98,22 +98,22 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
 
         const ctx = canvas.getContext('2d');
         canvas.width = Dimensions.get('window').width * 0.8;
-        canvas.height = Dimensions.get('window').height * 0.3;
+        canvas.height = Dimensions.get('window').height * 0.225;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.strokeStyle = '#dd09dd';
         ctx.lineWidth = 3;
-        ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 140);
+        ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 90);
 
         ctx.strokeStyle = '#000';
         ctx.fillStyle = '#000';
         ctx.lineWidth = 1;
         canvasLine(50, 40, canvas.width - 50, 40, ctx);
-        canvasLine(40, 50, 40, canvas.height - 90, ctx);
+        canvasLine(40, 50, 40, canvas.height - 40, ctx);
         canvasLine(50, 30, 50, 50, ctx);
         canvasLine(canvas.width - 50, 30, canvas.width - 50, 50, ctx);
         canvasLine(30, 50, 50, 50, ctx);
-        canvasLine(30, canvas.height - 90, 50, canvas.height - 90, ctx)
+        canvasLine(30, canvas.height - 40, 50, canvas.height - 40, ctx)
 
         let widthText, lengthText;
         console.log(gardenIdx);
@@ -132,7 +132,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
         ctx.textAlign = 'center';
         ctx.fillText(widthText, canvas.width / 2, 25);
         ctx.rotate(-Math.PI / 2);
-        ctx.fillText(lengthText, -13*canvas.height/32, 25);
+        ctx.fillText(lengthText, -16*canvas.height/32, 25);
         ctx.rotate(Math.PI / 2);
     };
 

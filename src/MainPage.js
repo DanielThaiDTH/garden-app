@@ -6,6 +6,7 @@ import {
      Text, 
      Image, 
      View,  
+     ScrollView,
      TextInput, 
      Pressable, 
      Switch } from 'react-native';
@@ -197,7 +198,7 @@ export default MainPage = ({navigation}) => {
         }
 
         return (
-            <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.container}>
                 <Text style={styles.greeting}>Hello {(context.curUsername && context.curUsername.length > 0)? context.curUsername:"guest"}!</Text>
                 {context.curUsername.length > 0 && context.account && context.account.getGardenCount() === 0 && 
                     <Pressable style={styles.addGarden}
@@ -233,7 +234,22 @@ export default MainPage = ({navigation}) => {
                             <Shadow offset={[2, 3]} distance={5}>
                                 <View style={styles.searchInterior}>
                                     <Text style={styles.listHeader}>Search Results</Text>
-                                    <FlatList data={data}
+                                    {data.map((item) => {
+                                        return (
+                                            <View style={styles.listItem} key={item.id}>
+                                                <Pressable onPress={() => navigation.push('plant-info', { id: item.id })}
+                                                    style={({ pressed }) => [{
+                                                        backgroundColor: pressed ? '#d0c0a0' : 'beige',
+                                                        borderRadius: 3,
+                                                        paddingHorizontal: 5
+                                                    }]}>
+                                                    <Text>{item.name}</Text>
+                                                    <Text style={styles.sub}>{item.botanicalName}</Text>
+                                                </Pressable>
+                                            </View>
+                                        );
+                                    })}
+                                    {/* <FlatList data={data}
                                         renderItem={({ item }) =>
                                             <View style={styles.listItem}>
                                                 <Pressable onPress={()=>navigation.push('plant-info', { id: item.id })}
@@ -246,7 +262,7 @@ export default MainPage = ({navigation}) => {
                                                     <Text style={styles.sub}>{item.botanicalName}</Text>
                                                 </Pressable>
                                             </View>
-                                        } />
+                                        } /> */}
                                 </View>
                             </Shadow>
                         </View>
@@ -294,7 +310,7 @@ export default MainPage = ({navigation}) => {
                 
                 </View>
                 <LoginModal/>
-            </View>
+            </ScrollView>
         );
     }
 

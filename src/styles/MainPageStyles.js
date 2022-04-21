@@ -4,7 +4,6 @@ import { StyleSheet, Dimensions, Platform } from 'react-native';
 export default StyleSheet.create({
     container: {
         display: 'flex',
-        flex: 1,
         margin: 24,
         paddingTop: (Platform.OS === 'ios') ? 50 : 0,
         justifyContent: 'flex-start',
@@ -19,7 +18,8 @@ export default StyleSheet.create({
         padding: 5,
         borderRadius: 5,
         maxHeight: '100%',
-        alignItems: "center"
+        alignItems: "center",
+        marginBottom: 25
     },
     searchContainerEmpty: {
         flex: -1,
@@ -157,7 +157,8 @@ export default StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 25,
         borderWidth: 0.5,
-        padding: 20
+        padding: 20,
+        marginVertical: 15
     },
     riskText: {
         fontFamily: 'Ubuntu',
