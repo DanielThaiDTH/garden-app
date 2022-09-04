@@ -14,11 +14,12 @@ import { API_URL } from './service/Constants';
 import AddPlantModal from './components/AddPlantModal';
 import PlantMgmtListItem from './components/PlantMgmtListItem';
 import GardenPlantMgmtStyles from './styles/GardenPlantMgmtStyles';
-import { canvasLine } from './utils';
+import { canvasLine, generateDateObj, calculatePlantRisk } from './utils';
+import { calculatePrecipWater } from './service/WateringService';
 
 const styles = GardenPlantMgmtStyles;
 
-/** Must have a garden with an account */
+/** Is the page for managing plants in a garden. Must have an account active or it will not load. */
 export default GardenPlantMgmt = ({ navigation, route }) => {
     const context = useContext(AppContext);
     const [listRefresh, setListRefresh] = useState(false); //used to force a refresh
@@ -27,6 +28,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
     const [gardenIdx, setGardenIdx] = useState(context.account.activeGardenIdx ?? -1);
     const [gardenName, setGardenName] = useState(context.account.activeGarden ?? "" );
     const [addModalVisible, setAddModalVisible] = useState(false);
+    const [currentRisk, setCurrentRisk] = useState(context.risk);
 
     useEffect(() => {
         if (context.account) {
@@ -40,6 +42,55 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
 
         };
     },[context.account]);
+
+
+    const updateWeather = async (garden) => {
+        console.log(garden.lat + garden.lon);
+
+        if (!garden.name)
+            return;
+        else if (context.account && context.weatherCache[context.account.name + garden.name]) {
+            let weather = context.weatherCache[context.account.name + garden.name];
+            calculatePrecipWater(garden, context, false);
+            context.riskCache[context.account.name + garden.name] = calculatePlantRisk(weather, garden);
+            setCurrentRisk(context.riskCache[context.account.name + garden.name]);
+            setListRefresh(!listRefresh);
+            return;
+        }
+
+        const lat = garden.lat;
+        const long = garden.lon;
+
+        if (!lat || !long)
+            return;
+
+        console.log(lat + " " + long);
+        fetch(`${API_URL}/weather?lat=${lat}&lon=${long}`)
+            .then(res => res.json())
+            .then(json => {
+                if (!json || json.error) {
+                    console.error(json ? json.error : "No data.");
+                } else {
+                    if (!json.current)
+                        console.log(json);
+
+                    json.current['date'] = generateDateObj(json.current.dt);
+                    json.daily.forEach(d => {
+                        d['date'] = generateDateObj(d.dt);
+                    });
+                    if (context.account) {
+                        calculatePrecipWater(garden, context, false);
+                        context.riskCache[context.account.name + garden.name] = calculatePlantRisk(json, garden);
+                        setCurrentRisk(context.riskCache[context.account.name + garden.name]);
+                        context.weatherCache[context.account.name + garden.name] = json;
+                        setListRefresh(!listRefresh);
+                    }
+                    //console.log(json);
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+    };
 
 
     const deletePlant = async (id) => {
@@ -88,6 +139,10 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
         dropdownStyle.width = Dimensions.get('window').width*0.8;
         dropdownStyle.height = Math.min(context.account.getGardenCount()*50, 200);
         return dropdownStyle;
+    };
+
+    const forceRefresh = () => {
+        setListRefresh(!listRefresh);
     };
 
     const handleCanvas = (canvas) => {
@@ -158,6 +213,7 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                                                 if (idx >= 0) {
                                                     setGardenName(context.account.getGardenAt(idx).name);
                                                     setPlantList(context.account.getGardenAt(idx).getPlants());
+                                                    updateWeather(context.account.getGardenAt(idx));
                                                 }
                                                 setListRefresh(!listRefresh);
                                             }}/>
@@ -174,22 +230,38 @@ export default GardenPlantMgmt = ({ navigation, route }) => {
                                              pressCallback={() => setSelectedID(item.id) }
                                              infoCallback={() => navigation.push('plant-info', { id: item.plantID })}
                                              plantDateCallback={() => updatePlantingDate(item.id)}
+                                             currentRisk = {currentRisk}
                                              waterCallback={(water) => {
                                                  item.waterDeficit -= water;
-                                                 if (gardenIdx+1 != -1)
-                                                    item.updateWaterDeficit(context.token, context.account.getGardenAt(gardenIdx+1).id);
-                                                 else
-                                                    item.updateWaterDeficit(context.token, context.account.getActiveGarden().id);
+                                                 if (gardenIdx+1 != -1) {
+                                                     item.updateWaterDeficit(context.token, 
+                                                        context.account.getGardenAt(gardenIdx).id, 
+                                                        currentRisk,
+                                                        forceRefresh);
+                                                 } else {
+                                                     item.updateWaterDeficit(context.token,
+                                                         context.account.getActiveGarden().id, 
+                                                         currentRisk,
+                                                         forceRefresh);
+                                                 }
                                              }}/>
                       )}
                       >
             </FlatList>
-            <Button title='Add Plant' onPress={() => {
-                setAddModalVisible(!addModalVisible);
-            }}/>
-            <Button color={'red'} title='Delete plant' onPress={() => {
-                deletePlant(selectedID);
-            }}/>
+            <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+                <TouchableOpacity style={styles.addPlant} onPress={() => {
+                    setAddModalVisible(!addModalVisible);
+                }}>
+                    <Ionicons name='md-add' size={20} color={'blue'} style={{marginLeft: 10}}/>
+                    <Text style={styles.plantMgmtText}>Add Plant</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.deletePlant} onPress={() => {
+                    deletePlant(selectedID);
+                }}>
+                    <Ionicons name='md-remove' size={20} color={'red'} style={{ marginLeft: 10 }} />
+                    <Text style={styles.plantMgmtText}>Delete Plant</Text>
+                </TouchableOpacity>
+            </View>
             <AddPlantModal visibleState={{value: addModalVisible, setValue: setAddModalVisible }} 
                            callback={() => { 
                                setPlantList(context.account.getGardenAt(gardenIdx).getPlants());

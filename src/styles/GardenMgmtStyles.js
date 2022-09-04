@@ -31,18 +31,30 @@ export default StyleSheet.create({
         fontFamily: 'UbuntuBold',
         fontSize: 25
     },
+    shadowContainer: {
+        flex: 1,
+        width: Dimensions.get("window").width*0.95,
+        marginTop: Dimensions.get("window").height * 0.15,
+        borderRadius: 30,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 10
+    },
     addGarden: {
         backgroundColor: 'white',
-        width: Dimensions.get("window").width,
-        padding: 50,
+        width: Dimensions.get("window").width*0.95,
         marginTop: Dimensions.get("window").height * 0.15,
-        borderRadius: 30
+        padding: 50,
+        borderRadius: 30,
+        marginTop: 0,
+        alignSelf: 'center'
     },
     nameInput: {
         justifyContent: 'center',
         fontSize: 20,
         height: 40,
-        width: Dimensions.get('window').width * 0.8,
+        width: Dimensions.get('window').width * 0.7,
         borderTopLeftRadius: 5,
         borderTopRightRadius: 5,
         borderBottomLeftRadius: 5,
@@ -72,15 +84,82 @@ export default StyleSheet.create({
     buttonCreateColor: {
         borderColor: '#0033AA'
     },
+    switchContainer: {
+        display: "flex",
+        flexDirection: "row",
+        width: Dimensions.get('window').width*0.5,
+        alignItems: "center",
+        alignSelf: "center",
+        paddingLeft: 10,
+    },
+    switchLabel: {
+        fontFamily: 'Ubuntu',
+        fontSize: 16
+    },
+    coordView: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center'
+    },
+    coordLabel: {
+        fontFamily: 'Ubuntu',
+        fontSize: 20,
+        textAlignVertical: 'top'
+    },
+    coordInput: {
+        justifyContent: 'center',
+        fontSize: 20,
+        height: 40,
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
+        backgroundColor: 'white',
+        marginBottom: 10,
+        borderWidth: 0.5,
+        padding: 5,
+    },
     createButtons: {
         borderWidth: 2,
         borderRadius: 12,
         marginHorizontal: 5,
-        marginVertical: 20,
+        marginVertical: 10,
         alignItems: 'center'
     },
     createButtonOk: {
         borderColor: '#90e080'
+    },
+    managePlants: {
+        borderRadius: 15,
+        borderWidth: 4,
+        borderColor: 'green',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 3
+    },
+    buttonText: {
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        fontFamily: 'UbuntuBold',
+        fontSize: 18
+    },
+    addGardenButton: {
+        borderRadius: 15,
+        borderWidth: 4,
+        borderColor: 'blue',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 3
+    },
+    removeGarden: {
+        borderRadius: 15,
+        borderWidth: 4,
+        borderColor: 'red',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 3
     }
-
 });

@@ -1,4 +1,5 @@
 import { API_URL } from "../service/Constants";
+import { removeRisk } from "../utils";
 
 export default class Plant {
     plantID;
@@ -95,8 +96,9 @@ export default class Plant {
         }
     }
 
-    async updateWaterDeficit(token, gardenID) {
+    async updateWaterDeficit(token, gardenID, risk, callback) {
         console.log("Garden ID of " + gardenID);
+        console.log("Plant ID of " + this.id);
         try {
             let res = await fetch(`${API_URL}/plant/water/${this.id}`, {
                 method: "POST",
@@ -112,6 +114,11 @@ export default class Plant {
             });
             if (res.ok) {
                 console.log(this.id + " watering updated");
+                if (this.waterDeficit <= 1/5) {
+                    removeRisk("drought", this.id, risk);
+                    if (callback instanceof Function)
+                        callback();
+                }
             } else {
                 console.log("Could not update");
                 console.log((await res.json()).error);

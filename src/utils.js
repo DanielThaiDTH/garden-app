@@ -106,6 +106,40 @@ export const calculatePlantRisk = (weather, garden) => {
     return gardenRisk;
 }
 
+
+export const removeRisk = (type, plantID, gardenRisk) => {
+    if (!gardenRisk)
+        return;
+    
+    let plant = gardenRisk.plantRisk.find(p => p.id === plantID);
+
+    if (!plant)
+        return;
+    
+    plant.risk = plant.risk.filter(r => r !== type);
+
+    if (!gardenRisk.plantRisk.some(pr => pr.risk.some(r => r === type))) {
+        gardenRisk.risk = gardenRisk.risk.filter(r => r !== type);
+    }
+}
+
+export const removePlantRisk = (plantID, gardenRisk) => {
+    if (!gardenRisk)
+        return;
+
+    gardenRisk.plantRisk = gardenRisk.plantRisk.filter(pr => pr.id !== plantID);
+
+    if (gardenRisk.plantRisk.some(pr => pr.risk.some(r => r === "frost")))
+        gardenRisk.risk = gardenRisk.risk.filter(r => r !== "frost");
+
+    if (gardenRisk.plantRisk.some(pr => pr.risk.some(r => r === "drought")))
+        gardenRisk.risk = gardenRisk.risk.filter(r => r !== "drought");
+
+    if (gardenRisk.plantRisk.some(pr => pr.risk.some(r => r === "heat")))
+        gardenRisk.risk = gardenRisk.risk.filter(r => r !== "heat");
+}
+
+
 export const canvasLine = function(x1, y1, x2, y2, ctx) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);

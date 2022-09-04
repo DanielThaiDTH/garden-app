@@ -8,6 +8,7 @@ import AppContext from './context/AppContext';
 
 let styles = {};
 
+/** Page used to access account settings. */
 export default SettingsPage = ({navigation}) => {
     const context = useContext(AppContext);
 

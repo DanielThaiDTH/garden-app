@@ -17,7 +17,8 @@ const styles = GardenPlantMgmtStyles
  * pressCallback: callbackFn,
  * expandCallback: callbackFn,
  * infoCallback: callbackFn,
- * plantDateCallback: callbackFn}} param0.item
+ * plantDateCallback: callbackFn,
+ * waterCallback: callbackFn}} param0.item
  * @returns React component
  */
 const PlantMgmtListItem = ({
@@ -28,6 +29,7 @@ const PlantMgmtListItem = ({
   infoCallback, //For plant information button
   plantDateCallback, //For update plant date button
   waterCallback, //For watering updates
+  currentRisk
 }) => {
   const context = useContext(AppContext);
   const [expanded, setExpanded] = useState(false);
@@ -42,7 +44,10 @@ const PlantMgmtListItem = ({
   };
 
   const plantIsAtRisk = (type) => {
-      let plant = context.risk.plantRisk.find(pr => pr.id === item.id);
+      if (!currentRisk || !currentRisk.plantRisk)
+        return false;
+
+      let plant = currentRisk.plantRisk.find(pr => pr.id === item.id);
       if (plant)
           return plant.risk.some(r => r === type);
       else

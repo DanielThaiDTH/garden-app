@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef, useLayoutEffect } from 'react';
+import React, { useEffect, useState, useContext, useRef, useLayoutEffect, useCallback } from 'react';
 import { Constants } from 'expo-constants';
 import { Alert, Touchable, TouchableOpacity } from 'react-native';
 import {
@@ -11,7 +11,7 @@ import {
      Pressable, 
      Switch } from 'react-native';
 import { ActivityIndicator } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
 import { generateDateObj, filterSearchByZone } from './utils';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Shadow } from 'react-native-shadow-2';
@@ -85,9 +85,19 @@ export default MainPage = ({navigation}) => {
 
 
     //Get the weather
-    useEffect(() => {
-        if (!context.location || !context.location.coords)
+    useFocusEffect(useCallback(() => {
+        console.log("\nMain page weather called, " + context.initialLoad);
+        if (!context.location || !context.location.coords || !context.initialLoad)
             return;
+        else if (context.account && context.weatherCache[context.account.name + context.account.activeGarden]) {
+            let weather = context.weatherCache[context.account.name + context.account.activeGarden];
+            context.setWeatherData(weather);
+            calculatePrecipWater(context.account.getActiveGarden(), context);
+            context.setRisk(calculatePlantRisk(weather, context.account.getActiveGarden()));
+            context.setInitialLoad(false);
+            return;
+        }
+
 
         const lat = context.location.coords.latitude;
         const long = context.location.coords.longitude;
@@ -112,6 +122,7 @@ export default MainPage = ({navigation}) => {
                     if (context.account) {
                         calculatePrecipWater(context.account.getActiveGarden(), context);
                         context.setRisk(calculatePlantRisk(json, context.account.getActiveGarden()));
+                        context.weatherCache[context.account.name + context.account.activeGarden] = json;
                     }
                     context.setWeatherData(json);
                     //console.log(json);
@@ -121,7 +132,7 @@ export default MainPage = ({navigation}) => {
             });
         return () => {
         };
-    }, [context.location]);
+    }, [context.location, context.initialLoad]));
 
     //Renders options
     useLayoutEffect(() => {
@@ -422,7 +433,7 @@ export default MainPage = ({navigation}) => {
                         keyExtractor={blog => blog.id}
                         renderItem={({item}) => 
                             <View style={styles.blogItem}>
-                                <Pressable style={styles.blogItemButton}>
+                                <Pressable style={styles.blogItemButton} onPress={() => navigation.push('blog', { id: item.id })}>
                                     <Text style={styles.blogItemTitle}>{item.title}</Text>
                                     <Text style={styles.blogItemDate}>{item.date.toLocaleDateString()}</Text>
                                 </Pressable>

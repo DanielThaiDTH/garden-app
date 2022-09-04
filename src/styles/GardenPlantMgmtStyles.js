@@ -135,5 +135,25 @@ export default StyleSheet.create({
     },
     dropdownText: {
         fontSize: 20,
+    },
+    addPlant: {
+        borderRadius: 15, 
+        borderWidth: 4,
+        borderColor: 'blue',
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    plantMgmtText: {
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        fontFamily: 'UbuntuBold',
+        fontSize: 18
+    },
+    deletePlant: {
+        borderRadius: 15,
+        borderWidth: 4,
+        borderColor: 'red',
+        flexDirection: 'row',
+        alignItems: 'center'
     }
 });

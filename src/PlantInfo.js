@@ -159,7 +159,7 @@ export default PlantInfo = ({route, navigation}) => {
     if (connectError) {
         return (
             <View style={styles.container}>
-                <Text>{{errMsg}}</Text>
+                <Text>{errMsg}</Text>
             </View>
         );
     }
@@ -229,6 +229,9 @@ export default PlantInfo = ({route, navigation}) => {
 
                     <Text style={styles.dataHeader}>Plant Family</Text>
                     <Text style={styles.innerText}>{data.plantGenus}</Text>
+
+                    <Text style={styles.dataHeader}>Planting Soil Temperature</Text>
+                    <Text style={styles.innerText}>{data.soilTemp}&deg;C</Text>
 
                     <Text style={styles.dataHeader}>Viable Hardiness Zones</Text>
                     <HardinessDisplay zones={data.zones}/>

@@ -86,14 +86,15 @@ export default class Account {
             if (!res.ok) {
                 return res.error
             }
+            this.#gardens = this.#gardens.filter(g => g.name !== name);
+            this.activeGarden = (this.#gardens.length > 0) ? this.#gardens[0].name : null;
+            if (this.activeGarden)
+                this.setActiveGarden(this.activeGarden);
+            return "Garden deleted";
         } catch (err) {
             console.log(err.message);
             return "Could not access system.";
         }
-
-        this.#gardens = this.#gardens.filter(g => g.name !== name);
-        this.activeGarden = (this.#gardens.length > 0) ? this.#gardens[0].name : null;
-        return "Garden deleted";
     }
 
     getGardenList() {

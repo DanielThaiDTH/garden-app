@@ -2,7 +2,7 @@ import { API_URL } from "./Constants";
 import { Alert } from "react-native";
 const IN_TO_MM = 25.4;
 
-export const calculatePrecipWater = function(garden, context) {
+export const calculatePrecipWater = function(garden, context, warn = true) {
     let plants = garden.getPlants();
     fetch(`${API_URL}/weatherhistory?lat=${context.location.coords.latitude}&lon=${context.location.coords.longitude}`)
     .then((res) => {
@@ -33,10 +33,11 @@ export const calculatePrecipWater = function(garden, context) {
                     if (p.plantDate) {
                         if (p.waterDeficit > 0) {
                             console.log(`Plant #${p.id} has a deficit of ${p.waterDeficit}`);
-                            Alert.alert("You plants that need watering in your " + garden.name + " garden");
+                            if (warn)
+                                Alert.alert("Your plants that need watering in your " + garden.name + " garden");
                         }
     
-                        p.updateWaterDeficit(context.token, garden.id);
+                        p.updateWaterDeficit(context.token, garden.id, context.risk);
                     }
                 });
             });
@@ -60,7 +61,7 @@ export const futureWater = function(deficit, context, plantID) {
     let consumption = 0;
 
 
-    console.log(weather);
+    //console.log(weather);
 
     weather.daily.forEach(w => { 
         if (w.rain)

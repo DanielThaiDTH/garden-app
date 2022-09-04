@@ -64,6 +64,7 @@ export default LoginModal = () => {
                             if (acc.ok) {
                                 acc.json().then(account => {
                                     context.setAccount(new Account(account));
+                                    context.setInitialLoad(true);
                                     viewContext.setVisible(false);
                                 }).catch(err => Alert.alert("Account access error", err.message, [{ text: "OK" }]));
                             } else {

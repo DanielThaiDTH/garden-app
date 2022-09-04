@@ -287,7 +287,7 @@ export default AccountReport = ({ navigation, route }) => {
             setGardenList(context.account.getGardenList());
 
             ////////////////////////////////////////////////////
-            setPlantList(context.account.getActiveGarden().getPlants());
+            setPlantList(context.account.getActiveGarden()?.getPlants() ?? []);
             setListRefresh(!listRefresh);
         }
         return () => {
@@ -391,7 +391,7 @@ export default AccountReport = ({ navigation, route }) => {
              <>
              {plantList.map(plant => {
                  return(
-                    <PlantCard context={context} plant={plant} nav={navigation}/>
+                    <PlantCard context={context} plant={plant} nav={navigation} key={plant.id}/>
                  );
              })}
              </>

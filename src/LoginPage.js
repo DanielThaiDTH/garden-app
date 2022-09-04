@@ -14,6 +14,9 @@ const CreateContext = createContext({
     setCreateModalVisible: () => {}
 });
 
+/** The login page. Navigates to main page and uses the CreateModal to 
+ * create new accounts.
+ */
 export default ({ navigation }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -21,6 +24,11 @@ export default ({ navigation }) => {
     const context = useContext(AppContext);
     const createContextValue = {createModalVisible, setCreateModalVisible};
 
+    /**
+     * Calls the /login path with the provided credentials in 
+     * the React state variables username and password.
+     * @returns JSON containing JWT confirming logged in status.
+     */
     const signIn = async () => {
         let res = await fetch(`${API_URL}/login`,
             {
@@ -31,6 +39,12 @@ export default ({ navigation }) => {
         return res;
     };
 
+    /**
+     * Calls /account path with a JWT and returns the response 
+     * containing account information.
+     * @param {string} token The JWT used for authorization. 
+     * @returns Account information from the /account path
+     */
     const accessAccount = async (token) => {
         let res = await fetch(`${API_URL}/account`,
             {
@@ -39,6 +53,14 @@ export default ({ navigation }) => {
         return res;
     }
 
+
+    /**
+     * Handler for sign-in event. If there is an account active, it 
+     * will log out of the account. Otherwise calls signIn and stores 
+     * the authenticated account, token and username. Stores account 
+     * by calling accessAcount and storing the result in the app context.
+     * Will alert on failure.
+     */
     const signInPress = () => {
         if (context.curUsername && context.token) {
             context.setCurUsername("");
@@ -46,6 +68,7 @@ export default ({ navigation }) => {
             context.setAccount(null);
             context.setLocation(null);
             context.setZone(-1);
+            context.setRisk(null);
         } else {
             signIn().then(res => {
                 //console.log(res);

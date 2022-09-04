@@ -1,14 +1,19 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { Alert, Modal, Platform, Dimensions } from 'react-native';
-import { FlatList, Text, Image, View, ScrollView, StyleSheet, Button, TextInput } from 'react-native';
+import { FlatList, Text, Image, View, ScrollView, Switch, Button, TextInput } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import * as Location from 'expo-location';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Shadow } from 'react-native-shadow-2';
 
 import AppContext from './context/AppContext';
 import Garden from './model/Garden';
 import Account from './model/Account';
 import { API_URL } from './service/Constants';
 import GardenMgmtStyles from './styles/GardenMgmtStyles';
+import { calculatePlantRisk } from './utils';
+import { calculatePrecipWater } from './service/WateringService';
+import { generateDateObj } from './utils';
 
 const styles = GardenMgmtStyles;
 
@@ -18,6 +23,9 @@ export default GardenMgmt = ({navigation, route}) => {
     const [modal, setModal] = useState(false);
     const [name, setName] = useState("");
     const [listRefresh, setListRefresh] = useState(false);
+    const [useDeviceLocation, setUseDeviceLocation] = useState(true);
+    const [latitude, setLatitude] = useState(0);
+    const [longitude, setLongitude] = useState(0);
     
     //Get location information
     useEffect(() => {
@@ -84,15 +92,68 @@ export default GardenMgmt = ({navigation, route}) => {
         }
     }, [context.location, context.zone]);
 
-
-    const addGarden = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert('Permission to access location was denied');
+    //Get the weather
+    useEffect(() => {
+        if (!context.location || !context.location.coords)
+            return;
+        else if (context.account && context.weatherCache[context.account.name + context.account.activeGarden]) {
+            let weather = context.weatherCache[context.account.name + context.account.activeGarden];
+            context.setWeatherData(weather);
+            calculatePrecipWater(context.account.getActiveGarden(), context, false);
+            context.setRisk(calculatePlantRisk(weather, context.account.getActiveGarden()));
             return;
         }
 
-        let newLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
+        const lat = context.location.coords.latitude;
+        const long = context.location.coords.longitude;
+
+        if (!lat || !long)
+            return;
+
+        console.log(lat + " " + long);
+        fetch(`${API_URL}/weather?lat=${lat}&lon=${long}`)
+            .then(res => res.json())
+            .then(json => {
+                if (!json || json.error) {
+                    console.error(json ? json.error : "No data.");
+                } else {
+                    if (!json.current)
+                        console.log(json);
+
+                    json.current['date'] = generateDateObj(json.current.dt);
+                    json.daily.forEach(d => {
+                        d['date'] = generateDateObj(d.dt);
+                    });
+                    if (context.account) {
+                        calculatePrecipWater(context.account.getActiveGarden(), context, false);
+                        context.setRisk(calculatePlantRisk(json, context.account.getActiveGarden()));
+                        context.weatherCache[context.account.name + context.account.activeGarden] = json;
+                    }
+                    context.setWeatherData(json);
+                    //console.log(json);
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+        return () => {
+        };
+    }, [context.location]);
+
+
+    const addGarden = async () => {
+        let newLocation = {};
+        if (useDeviceLocation) {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission to access location was denied');
+                return;
+            }
+    
+            newLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
+        } else {
+            newLocation.coords = { latitude: latitude, longitude: longitude };
+            console.log("Adding garden with given coordinates of " + latitude + ", " + longitude);
+        }
         
         if (!newLocation) {
             Alert.alert("Could not obtain location");
@@ -147,6 +208,7 @@ export default GardenMgmt = ({navigation, route}) => {
                                                     context.account.setActiveGarden(item);
                                                     context.setZone(-1);
                                                     context.setLocation(null);
+                                                    context.setInitialLoad(true);
                                             }}            
                                             style={styles.gardenItem}>
                               <Text style={(context.account.activeGarden === item) ? styles.gardenItemSelected : styles.gardenItemText}>
@@ -156,36 +218,74 @@ export default GardenMgmt = ({navigation, route}) => {
                       )}>
             </FlatList>
             <View style={{justifyContent: 'space-evenly'}}>
-                <Button title='Manage Plants' color={'green'} onPress={() => navigation.push('plant-list')} />
-                <Button title='Add Garden' onPress={()=> setModal(true)}/>
-                <Button title='Remove Garden' color={'red'} onPress={removeGarden}/>
+                {/* <Button title='Manage Plants' color={'green'} onPress={() => navigation.push('plant-list')} /> */}
+                <TouchableOpacity style={styles.managePlants} onPress={() => navigation.push('plant-list')}>
+                    <Ionicons name='ios-leaf' size={20} color={'green'}/>
+                    <Text style={styles.buttonText}>Manage Plants</Text>
+                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
+                    <TouchableOpacity style={styles.addGardenButton} onPress={() => setModal(true)}>
+                        <Ionicons name='md-add' size={20} color={'blue'} style={{marginLeft: 10}}/>
+                        <Text style={styles.buttonText}>Add Garden</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.removeGarden} onPress={removeGarden}>
+                        <Ionicons name='md-remove' size={20} color={'red'} style={{ marginLeft: 10 }} />
+                        <Text style={styles.buttonText}>Remove Garden</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
+
             <Modal animationType='slide'
                 transparent={true}
                 visible={(initial || modal)}>
-                <View style={styles.addGarden}>
-                    <TextInput
-                        style={styles.nameInput}
-                        placeholder="Garden name"
-                        onChangeText={(val)=>setName(val)}
-                        value={name}/>
-                    <Button title="Use current location" />
-                    <Button title="Use device location" />
-                    <TouchableOpacity style={[styles.createButtons, styles.createButtonOk]}
-                        onPress={() => {
-                            setModal(false);
-                            setInitial(false);
-                            addGarden();
-                        }}>
-                        <Text style={styles.createButtonText}>Create</Text>
-                    </TouchableOpacity >
-                    <TouchableOpacity onPress={() => {
-                        setModal(false);
-                        setInitial(false);
-                    }}
-                        style={styles.createButtons}>
-                        <Text style={styles.createButtonText}>Cancel</Text>
-                    </TouchableOpacity>
+                <View style={styles.shadowContainer}>
+                    <Shadow>    
+                        <View style={styles.addGarden}>
+                            <TextInput
+                                style={styles.nameInput}
+                                placeholder="Garden name"
+                                onChangeText={(val)=>setName(val)}
+                                value={name}/>
+                            <View style={styles.switchContainer}>
+                                <Text style={styles.switchLabel}>Use device location</Text>
+                                <Switch value={useDeviceLocation}
+                                        onValueChange={()=> setUseDeviceLocation(!useDeviceLocation)}/>
+                            </View>
+                            {!useDeviceLocation && <View style={styles.coordView}>
+                                <Text style={styles.coordLabel}>Latitude</Text>
+                                <TextInput
+                                    style={styles.coordInput}
+                                    placeholder="Latitude"
+                                    onChangeText={(val) => setLatitude(parseFloat(val))}
+                                    keyboardType='numeric'
+                                    />
+                            </View>}
+                            {!useDeviceLocation && <View style={styles.coordView}>
+                                <Text style={styles.coordLabel}>Longitude</Text>
+                            <TextInput
+                                style={styles.coordInput}
+                                placeholder="Longitude"
+                                onChangeText={(val) => setLongitude(parseFloat(val))}
+                                keyboardType='numeric'
+                                />
+                            </View>}
+                            <TouchableOpacity style={[styles.createButtons, styles.createButtonOk]}
+                                onPress={() => {
+                                    setModal(false);
+                                    setInitial(false);
+                                    addGarden();
+                                }}>
+                                <Text style={styles.createButtonText}>Create</Text>
+                            </TouchableOpacity >
+                            <TouchableOpacity onPress={() => {
+                                setModal(false);
+                                setInitial(false);
+                            }}
+                                style={styles.createButtons}>
+                                <Text style={styles.createButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Shadow>
                 </View>
             </Modal>
         </View>

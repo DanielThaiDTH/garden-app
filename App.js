@@ -39,6 +39,9 @@ const App = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [visible, setVisible] = useState(false);
   const [risk, setRisk] = useState(null);
+  const [riskCache, setRiskCache] = useState({});
+  const [weatherCache, setWeatherCache] = useState({});
+  const [initialLoad, setInitialLoad] = useState(true);
   const loginContextValue = { visible, setVisible };
   const getPlantName = (id, context) => {
     let found = context.plantInfo.find(pi => pi.UID === id);
@@ -64,11 +67,16 @@ const App = () => {
       setZone,
       weatherData,
       setWeatherData,
+      weatherCache,
+      setWeatherCache,
+      initialLoad,
+      setInitialLoad,
       risk,
       setRisk,
+      riskCache,
       getPlantName
     }),
-    [curUsername, token, location, account, plantInfo, zone, weatherData, risk]
+    [curUsername, token, location, account, plantInfo, zone, weatherData, weatherCache, initialLoad, risk, riskCache]
   )
 
   useEffect(() => {

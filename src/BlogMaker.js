@@ -17,6 +17,12 @@ const MakeBlogContext = createContext({
     setIdx: () => {}
 });
 
+/**
+ * A section of a blog that is being created. Send the type of section in 
+ * type, send the content in children and callback to call on close in close.
+ * @param {{type: string, children: React.Element, close: callbackFn}} param0 
+ * @returns 
+ */
 const Section = ({type, children, close}) => {
     return(
         <View style={styles.section}>
@@ -34,6 +40,12 @@ const Section = ({type, children, close}) => {
     );
 };
 
+/**
+ * Adds a new blog section after the specified index. Add handling 
+ * to be provided in callback.
+ * @param {{callback: callbackFn, index: number}} param0 
+ * @returns 
+ */
 const AddSection = ({callback, index}) => {
     return (
         <TouchableOpacity style={styles.addSection}
@@ -43,6 +55,12 @@ const AddSection = ({callback, index}) => {
     );  
 };
 
+/**
+ * A deletable tag. Value is the tag name and onDelete handles 
+ * the delete tag event.
+ * @param {{value: string, onDelete: callbackFn}} param0 
+ * @returns 
+ */
 const DeleteableTag = ({value, onDelete}) => {
     return (
         <View style={styles.tag}>
@@ -56,6 +74,9 @@ const DeleteableTag = ({value, onDelete}) => {
     );
 };
 
+/** Block maker page. Can create blogs section by section. Also allows adding
+ * tags to a blog.
+ */
 export default BlogMaker = ({navigation}) => {
     const [blogBuilder, setBlogBuilder] = useState(new BlogBuilder());
     const [visible, setVisible] = useState(false);

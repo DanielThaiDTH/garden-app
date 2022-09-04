@@ -26,6 +26,7 @@ export default AppMenu = ({navigation, name}) => {
         context.setToken("");
         context.setCurUsername("");
         context.setZone(-1);
+        context.setRisk(null);
     };
 
     return (
