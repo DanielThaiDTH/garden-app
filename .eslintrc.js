@@ -2,7 +2,7 @@ module.exports = {
     "env": {
         "browser": true,
         "es2021": true,
-        "react-native/react-native": true
+        "react-native/react-native": true,
     },
     "extends": [
         "eslint:recommended",
@@ -18,7 +18,8 @@ module.exports = {
     },
     "plugins": [
         "react",
-        "react-native"
+        "react-native",
+        "babel"
     ],
     "rules": {
         "react/prop-types": "off",
